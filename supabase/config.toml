@@ -1,0 +1,7 @@
+project_id = "erwvzmcnwyoexbmgtlqw"
+
+[functions.get-tripay-channels]
+verify_jwt = false
+
+[functions.create-tripay-transaction]
+verify_jwt = false
