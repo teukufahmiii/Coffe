@@ -30,8 +30,7 @@ function MenuPage() {
     queryFn: async () => {
       let query = supabase
         .from("menu_items")
-        .select("*")
-        .eq("is_available", true);
+        .select("*");
       
       if (cat !== "semua") {
         query = query.eq("category", cat);
@@ -57,10 +56,14 @@ function MenuPage() {
             {/* Filter Tabs */}
             <div className="flex flex-wrap justify-center gap-2">
               {[
-                { id: "semua", label: "Semua" },
-                { id: "coffee", label: "Coffee" },
-                { id: "non-coffee", label: "Non-Coffee" },
+                { id: "semua", label: "Semua Menu" },
+                { id: "coffee", label: "Kopi Klasik" },
+                { id: "hot-coffee", label: "Hot Coffee" },
+                { id: "americano", label: "Americano" },
+                { id: "non-coffee", label: "Non-Kopi" },
                 { id: "snack", label: "Makanan" },
+                { id: "makanan", label: "Makanan Berat" },
+                { id: "tumbler", label: "Tumbler" },
               ].map((c) => (
                 <button
                   key={c.id}

@@ -19,9 +19,14 @@ export const Route = createFileRoute("/table/$tableNumber")({
 });
 
 const CATS = [
+  { id: "semua", label: "Semua" },
   { id: "coffee", label: "Coffee" },
+  { id: "hot-coffee", label: "Hot Coffee" },
+  { id: "americano", label: "Americano" },
   { id: "non-coffee", label: "Non-Coffee" },
   { id: "snack", label: "Snack" },
+  { id: "makanan", label: "Makanan" },
+  { id: "tumbler", label: "Tumbler" },
 ] as const;
 
 type Cart = Record<string, { name: string; price: number; qty: number; note?: string; menuItemId?: string; image_url?: string | null; category?: string }>;
@@ -45,7 +50,6 @@ function TableOrderPage() {
       const { data, error } = await supabase
         .from("menu_items")
         .select("*")
-        .eq("available", true)
         .order("name");
       if (error) throw error;
       return data;

@@ -10,8 +10,7 @@ export function useNearestBranch(userLat: number | null, userLng: number | null)
       // 1. Fetch all active branches
       const { data: branches, error } = await supabase
         .from('branches')
-        .select('*')
-        .eq('is_active', true);
+        .select('*');
         
       if (error) throw error;
       if (!branches || branches.length === 0) return null;

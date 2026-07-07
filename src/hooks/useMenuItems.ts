@@ -7,16 +7,13 @@ export function useMenuItems(branchSlug?: string, isAvailableOnly: boolean = tru
     queryFn: async () => {
       let query = supabase.from('menu_items').select('*');
       
-      // Map branch slug to branch name used in menu_items if needed
-      // Currently, menu_items seems to use 'kemang' or 'senopati' as 'branch' string
-      if (branchSlug) {
-        query = query.eq('branch', branchSlug);
-      }
+      // Remove branch filter since menu is global
+      // if (branchSlug) {
+      //   query = query.eq('branch', branchSlug);
+      // }
       
-      if (isAvailableOnly) {
-        // Checking for available column based on previous code review
-        // In the database it might be 'is_available' or 'available', handling 'available' as seen in pickup.tsx
-        query = query.eq('available', true); 
+      if (isAvailableOnly && branchSlug) {
+        query = query.contains('available_branches', [branchSlug]);
       }
       
       query = query.order('name');

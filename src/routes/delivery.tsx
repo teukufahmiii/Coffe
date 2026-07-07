@@ -9,6 +9,7 @@ import { useMenuItems } from "@/hooks/useMenuItems";
 import { MenuCard } from "@/components/shared/MenuCard";
 import { ItemDetailModal } from "@/components/shared/ItemDetailModal";
 import { DeliveryCheckout } from "@/components/delivery/DeliveryCheckout";
+import { LocationPicker } from "@/components/shared/LocationPicker";
 import { tripayService } from "@/services/tripayService";
 
 export const Route = createFileRoute("/delivery")({
@@ -23,9 +24,12 @@ export const Route = createFileRoute("/delivery")({
 const CATS = [
   { id: "semua", label: "Semua" },
   { id: "coffee", label: "Coffee" },
+  { id: "hot-coffee", label: "Hot Coffee" },
+  { id: "americano", label: "Americano" },
   { id: "non-coffee", label: "Non-Coffee" },
   { id: "snack", label: "Snack" },
   { id: "makanan", label: "Makanan" },
+  { id: "tumbler", label: "Tumbler" },
 ] as const;
 
 function DeliveryOrderPage() {
@@ -51,10 +55,11 @@ function DeliveryOrderPage() {
 
       const orderPayload: any = {
         table_number: 99, 
-        total: totals.total, 
+        total: Math.max(0, totals.total - (details.discountAmount || 0)), 
         note: details.globalNote, 
         status: "pending", 
         order_type: "delivery",
+        branch: branchSlug,
         branch_id: branchId,
         customer_name: details.customerName,
         customer_phone: details.customerPhone,
@@ -63,7 +68,8 @@ function DeliveryOrderPage() {
         customer_lng: details.customerLng ?? null,
         driver_type: details.driverType,
         payment_channel: details.paymentChannel,
-        agreed_terms: details.agreedTerms
+        agreed_terms: details.agreedTerms,
+        voucher_id: details.voucherId || null
       };
 
       const { data: order, error } = await supabase
@@ -123,8 +129,11 @@ function DeliveryOrderPage() {
             <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">LNR Coffee {branchSlug}</div>
             <div className="font-display text-lg font-bold">Delivery</div>
           </div>
-          <div className="grid size-10 place-items-center rounded-full bg-accent/10 text-accent"><MapPin className="size-4" /></div>
+          <div className="grid size-10 place-items-center rounded-full bg-accent/10 text-accent"><ShoppingBag className="size-4" /></div>
         </div>
+
+        <LocationPicker currentBranch={branchSlug} path="/delivery" />
+
         <div className="mx-auto flex max-w-2xl gap-2 overflow-x-auto px-4 pb-3">
           {CATS.map((c) => (
             <button key={c.id} onClick={() => setCat(c.id)} className={`shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition ${cat === c.id ? "bg-accent text-accent-foreground" : "bg-secondary text-foreground hover:bg-accent/20"}`}>

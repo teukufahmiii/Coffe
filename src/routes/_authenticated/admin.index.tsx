@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
-import { Plus, Pencil, Trash2, Loader2, Save, X, Store, Clock, ChefHat, CheckCircle2, CreditCard, LayoutDashboard, UtensilsCrossed, Package, MapPin, Upload, Star, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Loader2, Save, X, Store, Clock, ChefHat, CheckCircle2, CreditCard, LayoutDashboard, UtensilsCrossed, Package, MapPin, Upload, Star, ThumbsUp, ThumbsDown, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatRupiah } from "@/lib/format";
@@ -16,16 +16,21 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 export type MenuOptionChoice = { name: string; price_diff: number };
 export type MenuOptionGroup = { name: string; type: "wajib" | "opsional"; choices: MenuOptionChoice[] };
 
-type MenuItem = {
+export type MenuItem = {
   id: string;
   name: string;
-  category: "coffee" | "non-coffee" | "snack" | "makanan";
+  category: "coffee" | "hot-coffee" | "americano" | "non-coffee" | "snack" | "makanan" | "tumbler";
   price: number;
   description: string;
   image_url: string | null;
-  available: boolean;
-  branch: string;
+  available_branches?: string[];
+  // Legacy fields below (can be ignored)
+  available_kemang?: boolean;
+  available_senopati?: boolean;
   options: MenuOptionGroup[] | null;
+  // Legacy fields below (can be ignored)
+  available?: boolean;
+  branch?: string;
 };
 
 type OrderItem = { id: string; name: string; price: number; qty: number; note: string | null };
@@ -46,7 +51,7 @@ type Order = {
   order_items: OrderItem[];
 };
 
-const PRESET_OPTIONS: MenuOptionGroup[] = [
+export const PRESET_OPTIONS: MenuOptionGroup[] = [
   { name: "Ukuran Cup", type: "wajib", choices: [{ name: "Regular Ice", price_diff: 0 }, { name: "Large Ice", price_diff: 7000 }] },
   { name: "Sweetness", type: "wajib", choices: [{ name: "Normal Sweet", price_diff: 0 }, { name: "Less Sweet", price_diff: 0 }] },
   { name: "Ice Cube", type: "wajib", choices: [{ name: "Normal Ice", price_diff: 0 }, { name: "Less Ice", price_diff: 0 }, { name: "More Ice", price_diff: 0 }] },
@@ -54,7 +59,7 @@ const PRESET_OPTIONS: MenuOptionGroup[] = [
   { name: "Syrup", type: "opsional", choices: [{ name: "Aren", price_diff: 7000 }, { name: "Manuka", price_diff: 7000 }, { name: "Vanilla", price_diff: 7000 }, { name: "Salted Caramel", price_diff: 7000 }] }
 ];
 
-const CATS = ["coffee", "non-coffee", "snack", "makanan"] as const;
+export const CATS = ["coffee", "hot-coffee", "americano", "non-coffee", "snack", "makanan", "tumbler"] as const;
 const STATUS_STYLES: Record<Order["status"], { border: string; label: string; chip: string }> = {
   pending:   { border: "border-l-destructive",           label: "Blm Dibayar", chip: "bg-destructive/10 text-destructive" },
   paid:      { border: "border-l-[oklch(0.7_0.17_55)]", label: "Di proses",  chip: "bg-[oklch(0.7_0.17_55/0.2)] text-[oklch(0.55_0.17_55)]" },
@@ -65,28 +70,119 @@ const STATUS_STYLES: Record<Order["status"], { border: string; label: string; ch
 };
 
 function OutletDashboard() {
-  const [activeBranch, setActiveBranch] = useState("kemang");
+  const [activeBranch, setActiveBranch] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"pickup" | "delivery" | "menu" | "ulasan">("pickup");
 
+  const [outlets, setOutlets] = useState<any[]>([]);
+
+  useEffect(() => {
+    supabase.from("branches").select("*").order("name").then(({ data }) => {
+      if (data) setOutlets(data);
+    });
+  }, []);
+
+  const filteredOutlets = outlets.filter(o => o.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // 1. OUTLET SELECTION SCREEN
+  if (!activeBranch) {
+    return (
+      <AdminShell>
+        <div className="max-w-3xl mx-auto py-10">
+          <div className="text-center mb-10">
+            <h1 className="font-display text-4xl font-bold text-primary mb-3">Pilih Outlet</h1>
+            <p className="text-muted-foreground">Silakan pilih cabang outlet yang ingin Anda kelola</p>
+          </div>
+
+          <div className="relative mb-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground size-5" />
+            <input
+              type="text"
+              placeholder="Cari nama outlet..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-black/10 bg-white shadow-sm focus:border-primary focus:outline-none transition-colors text-lg"
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {filteredOutlets.map((outlet) => (
+              <button
+                key={outlet.id}
+                onClick={() => setActiveBranch(outlet.slug)}
+                className="flex items-center justify-between bg-white p-6 rounded-3xl border-2 border-black/10 shadow-sm hover:-translate-y-1 hover:shadow-lg hover:border-primary/50 transition-all group"
+              >
+                <div className="flex flex-col items-start text-left">
+                  <div className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Store className="size-6" />
+                  </div>
+                    <h3 className="font-display text-xl font-bold text-primary group-hover:text-accent transition-colors">{outlet.name}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{outlet.address}</p>
+                  </div>
+                  <ChevronRight className="text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
+                </button>
+            ))}
+            
+            {filteredOutlets.length === 0 && (
+              <div className="col-span-full text-center py-10 bg-white/50 rounded-2xl border border-dashed border-border">
+                <p className="text-muted-foreground">Outlet tidak ditemukan.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </AdminShell>
+    );
+  }
+
+  const activeOutlet = outlets.find(o => o.slug === activeBranch);
+  const selectedOutletName = activeOutlet?.name;
+  const isOutletActive = activeOutlet?.is_active ?? true;
+
+  const toggleOutletStatus = async () => {
+    if (!activeBranch) return;
+    const newStatus = !isOutletActive;
+    
+    // Optimistic update
+    setOutlets(prev => prev.map(o => o.slug === activeBranch ? { ...o, is_active: newStatus } : o));
+    
+    const { error } = await supabase.from("branches").update({ is_active: newStatus }).eq("slug", activeBranch);
+    if (error) {
+       toast.error(error.message);
+       // Revert
+       setOutlets(prev => prev.map(o => o.slug === activeBranch ? { ...o, is_active: !newStatus } : o));
+    } else {
+       toast.success(`Toko berhasil ${newStatus ? 'dibuka' : 'ditutup'}`);
+    }
+  };
+
+  // 2. MAIN DASHBOARD SCREEN
   return (
     <AdminShell>
-      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
         <div>
-          <h1 className="font-display text-3xl font-bold">Outlet Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Kelola pesanan dan menu per cabang.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-1.5 shadow-sm">
-            <Store className="size-4 text-muted-foreground" />
-            <select 
-              value={activeBranch} 
-              onChange={(e) => setActiveBranch(e.target.value)}
-              className="bg-transparent text-sm font-semibold outline-none"
-            >
-              <option value="kemang">Cabang Kemang</option>
-              <option value="senopati">Cabang Senopati</option>
-            </select>
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase flex items-center gap-1 ${isOutletActive ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
+              <Store className="size-3" /> {selectedOutletName} {isOutletActive ? '' : '(TUTUP)'}
+            </span>
           </div>
+          <h1 className="font-display text-3xl font-bold">Outlet Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Kelola pesanan dan menu untuk {selectedOutletName}.</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          {activeOutlet && (
+            <button
+              onClick={toggleOutletStatus}
+              className={`flex items-center gap-2 rounded-xl border-2 px-4 py-2 shadow-sm text-sm font-bold transition-all ${isOutletActive ? 'border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white' : 'border-primary/20 bg-primary/10 text-primary hover:bg-primary hover:text-white'}`}
+            >
+              {isOutletActive ? 'Tutup Toko' : 'Buka Toko'}
+            </button>
+          )}
+          <button 
+            onClick={() => setActiveBranch(null)}
+            className="flex items-center gap-2 rounded-xl border-2 border-black/10 bg-white px-4 py-2 shadow-sm text-sm font-bold text-primary hover:bg-accent/5 hover:border-primary/30 transition-all"
+          >
+            Ganti Outlet <ChevronRight className="size-4" />
+          </button>
         </div>
       </div>
 
@@ -236,9 +332,11 @@ function OrderBoard({ branch, type }: { branch: string, type: 98 | 99 }) {
       <table className="w-full text-left text-sm">
         <thead className="border-b border-border bg-secondary/30 text-muted-foreground">
           <tr>
-            <th className="px-4 py-3 font-medium whitespace-nowrap">ID & Waktu</th>
+            <th className="px-4 py-3 font-medium whitespace-nowrap">Waktu</th>
+            <th className="px-4 py-3 font-medium whitespace-nowrap">Nomer pesanan</th>
+            <th className="px-4 py-3 font-medium whitespace-nowrap">Nama Pemesan</th>
             <th className="px-4 py-3 font-medium">Pesanan</th>
-            <th className="px-4 py-3 font-medium">Catatan</th>
+            <th className="px-4 py-3 font-medium">Detail pesanan</th>
             <th className="px-4 py-3 font-medium whitespace-nowrap">Total</th>
             <th className="px-4 py-3 font-medium">Status</th>
             <th className="px-4 py-3 font-medium text-right">Aksi</th>
@@ -269,24 +367,37 @@ function OrderBoard({ branch, type }: { branch: string, type: 98 | 99 }) {
             return (
               <tr key={o.id} className="hover:bg-secondary/10 transition-colors">
                 <td className="px-4 py-3 align-top whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 text-xs text-foreground font-medium mt-0.5">
+                    <Clock className="size-3.5 text-muted-foreground" />
+                    {new Date(o.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                </td>
+                <td className="px-4 py-3 align-top whitespace-nowrap">
                   <div className="font-semibold text-foreground flex items-center gap-1.5">
                     {isDelivery ? <MapPin className="size-3.5 text-muted-foreground" /> : <Package className="size-3.5 text-muted-foreground" />}
                     #{orderNumber}
                   </div>
-                  <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="size-3" />
-                    {new Date(o.created_at).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                  </div>
                 </td>
                 
+                <td className="px-4 py-3 align-top whitespace-nowrap">
+                  <div className="font-semibold text-foreground">{displayCustomerName || "Guest"}</div>
+                  {displayCustomerPhone && (
+                    <div className="mt-1 text-[11px] text-muted-foreground">{displayCustomerPhone}</div>
+                  )}
+                </td>
+
                 <td className="px-4 py-3 align-top min-w-[200px]">
                   <ul className="space-y-1">
-                    {o.order_items.map((it) => (
-                      <li key={it.id} className="flex flex-col">
-                        <span className="font-medium text-foreground"><span className="text-accent">{it.qty}×</span> {it.name}</span>
-                        {it.note && <span className="mt-0.5 text-[11px] leading-tight text-muted-foreground whitespace-pre-line">- {it.note}</span>}
-                      </li>
-                    ))}
+                    {o.order_items.map((it) => {
+                      const match = it.name.match(/^(.*?)\s*\((.*)\)$/);
+                      const baseName = match ? match[1] : it.name;
+                      return (
+                        <li key={it.id} className="flex flex-col">
+                          <span className="font-medium text-foreground"><span className="text-accent">{it.qty}×</span> {baseName}</span>
+                          {it.note && <span className="mt-0.5 text-[11px] leading-tight text-muted-foreground whitespace-pre-line">- {it.note}</span>}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </td>
 
@@ -431,19 +542,15 @@ function OrderBoard({ branch, type }: { branch: string, type: 98 | 99 }) {
   );
 }
 
-// --- MENU MANAGER COMPONENT ---
+// --- OUTLET MENU MANAGER COMPONENT ---
 function MenuManager({ branch }: { branch: string }) {
   const [items, setItems] = useState<MenuItem[] | null>(null);
-  const [editing, setEditing] = useState<Partial<MenuItem> | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   const load = async () => {
     setItems(null);
     const { data, error } = await supabase
       .from("menu_items")
       .select("*")
-      .eq("branch", branch)
       .order("category")
       .order("name");
     
@@ -453,109 +560,27 @@ function MenuManager({ branch }: { branch: string }) {
 
   useEffect(() => { load(); }, [branch]);
 
-  const save = async () => {
-    if (!editing?.name || !editing.category || editing.price == null) {
-      toast.error("Nama, kategori, dan harga wajib diisi");
-      return;
-    }
-    setSaving(true);
-    const payload = {
-      name: editing.name,
-      category: editing.category,
-      price: Number(editing.price),
-      description: editing.description ?? "",
-      image_url: editing.image_url ?? null,
-      available: editing.available ?? true,
-      branch: branch,
-      options: editing.options ?? null,
-    };
-    const { error } = editing.id
-      ? await supabase.from("menu_items").update(payload).eq("id", editing.id)
-      : await supabase.from("menu_items").insert(payload);
-    if (error) toast.error(error.message);
-    else {
-      toast.success(editing.id ? "Menu diperbarui" : "Menu ditambahkan");
-      setEditing(null);
-      load();
-    }
-    setSaving(false);
-  };
-
-  const remove = async (id: string) => {
-    if (!confirm("Hapus menu ini?")) return;
-    const { error } = await supabase.from("menu_items").delete().eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success("Menu dihapus"); load(); }
-  };
-
   const toggleAvail = async (it: MenuItem) => {
-    const { error } = await supabase.from("menu_items").update({ available: !it.available }).eq("id", it.id);
+    const branches = it.available_branches || [];
+    const isCurrentlyAvail = branches.includes(branch);
+    
+    let newBranches;
+    if (isCurrentlyAvail) {
+      newBranches = branches.filter(b => b !== branch);
+    } else {
+      newBranches = [...branches, branch];
+    }
+    
+    const { error } = await supabase.from("menu_items").update({ available_branches: newBranches }).eq("id", it.id);
     if (error) toast.error(error.message);
     else load();
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    const ext = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2)}.${ext}`;
-    const { error } = await supabase.storage.from("menu-images").upload(fileName, file);
-    if (error) toast.error(error.message);
-    else {
-      const { data: { publicUrl } } = supabase.storage.from("menu-images").getPublicUrl(fileName);
-      setEditing(prev => prev ? { ...prev, image_url: publicUrl } : prev);
-      toast.success("Gambar berhasil diunggah");
-    }
-    setUploading(false);
-  };
-
-  const togglePreset = (presetName: string) => {
-    if (!editing) return;
-    const currentOpts = editing.options || [];
-    if (currentOpts.find(o => o.name === presetName)) {
-      setEditing({ ...editing, options: currentOpts.filter(o => o.name !== presetName) });
-    } else {
-      const preset = PRESET_OPTIONS.find(p => p.name === presetName);
-      if (preset) {
-        setEditing({ ...editing, options: [...currentOpts, JSON.parse(JSON.stringify(preset))] });
-      }
-    }
-  };
-
-  const updatePresetPrice = (presetName: string, choiceIndex: number, newPrice: number) => {
-    if (!editing) return;
-    const currentOpts = [...(editing.options || [])];
-    const grpIndex = currentOpts.findIndex(o => o.name === presetName);
-    if (grpIndex !== -1) {
-      currentOpts[grpIndex].choices[choiceIndex].price_diff = newPrice;
-      setEditing({ ...editing, options: currentOpts });
-    }
-  };
-
-  const togglePresetChoice = (presetName: string, choiceTemplate: any) => {
-    if (!editing) return;
-    const currentOpts = [...(editing.options || [])];
-    const grpIndex = currentOpts.findIndex(o => o.name === presetName);
-    if (grpIndex === -1) return;
-    
-    const grp = currentOpts[grpIndex];
-    const choiceIndex = grp.choices.findIndex(c => c.name === choiceTemplate.name);
-    
-    if (choiceIndex !== -1) {
-       grp.choices.splice(choiceIndex, 1);
-    } else {
-       grp.choices.push(JSON.parse(JSON.stringify(choiceTemplate)));
-    }
-    setEditing({ ...editing, options: currentOpts });
-  };
-
   return (
     <div>
-      <div className="mb-4 text-right">
-        <button onClick={() => setEditing({ available: true, category: "coffee", price: 0, description: "", name: "", options: [], image_url: null })} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
-          <Plus className="size-4" /> Tambah Menu
-        </button>
+      <div className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+        <strong className="block mb-1">Informasi:</strong>
+        Di sini Anda hanya dapat mengatur ketersediaan (Tersedia/Habis) untuk cabang terpilih. Untuk menambah, mengedit, atau menghapus menu, silakan gunakan fitur <b>Master Admin</b>.
       </div>
 
       {items === null ? (
@@ -571,186 +596,38 @@ function MenuManager({ branch }: { branch: string }) {
                 <h2 className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-accent">{c}</h2>
                 <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
                   {list.length === 0 && <div className="p-6 text-center text-sm text-muted-foreground">Belum ada menu di kategori ini.</div>}
-                  {list.map((it, idx) => (
-                    <div key={it.id} className={`flex flex-wrap items-start gap-4 p-4 ${idx > 0 ? "border-t border-border" : ""}`}>
-                      <div className="size-16 shrink-0 overflow-hidden rounded-lg bg-accent/15">
-                        <img 
-                          src={it.image_url || `/images/${it.name.toLowerCase().replace(/\s+/g, '-')}.png`}
-                          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `/images/${it.category}.png`; }}
-                          alt={it.name} 
-                          className="h-full w-full object-cover" 
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold">{it.name}</span>
-                          {!it.available && <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">Habis</span>}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{it.description}</div>
-                        {it.options && it.options.length > 0 && (
-                          <div className="mt-2 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                            {it.options.length} Grup Opsi
-                          </div>
-                        )}
-                      </div>
-                      <div className="font-display font-bold text-accent">{formatRupiah(it.price)}</div>
-                      <label className="inline-flex cursor-pointer items-center gap-2 text-xs">
-                        <input type="checkbox" checked={it.available} onChange={() => toggleAvail(it)} className="accent-[color:var(--accent)]" />
-                        Tersedia
-                      </label>
-                      <button onClick={() => setEditing(it)} className="grid size-8 place-items-center rounded-lg bg-secondary hover:bg-accent/30">
-                        <Pencil className="size-3.5" />
-                      </button>
-                      <button onClick={() => remove(it.id)} className="grid size-8 place-items-center rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20">
-                        <Trash2 className="size-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-      )}
-
-      {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setEditing(null)}>
-          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-background shadow-warm" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-border p-5">
-              <h2 className="font-display text-xl font-bold">{editing.id ? "Edit Menu" : `Tambah Menu (${branch === 'kemang' ? 'Kemang' : 'Senopati'})`}</h2>
-              <button onClick={() => setEditing(null)} className="grid size-8 place-items-center rounded-full bg-secondary hover:bg-secondary/80"><X className="size-4" /></button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-5 space-y-6">
-              {/* GAMBAR */}
-              <div className="flex items-start gap-5">
-                <div className="relative size-24 shrink-0 overflow-hidden rounded-xl border border-dashed border-border bg-secondary">
-                  {editing.image_url ? (
-                    <img src={editing.image_url} alt="Preview" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="grid h-full w-full place-items-center text-muted-foreground">
-                      <Upload className="size-6 opacity-50" />
-                    </div>
-                  )}
-                  {uploading && (
-                    <div className="absolute inset-0 grid place-items-center bg-background/80 backdrop-blur-sm">
-                      <Loader2 className="size-5 animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="mb-2 text-sm font-semibold">Gambar Menu</div>
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-medium transition hover:bg-secondary/80">
-                    <Upload className="size-4" /> Upload Gambar
-                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-                  </label>
-                  <p className="mt-2 text-xs text-muted-foreground">Format JPG, PNG. Ukuran ideal 1:1.</p>
-                </div>
-              </div>
-
-              <div className="h-px bg-border" />
-
-              {/* INFO DASAR */}
-              <div className="space-y-4">
-                <Field label="Nama Menu">
-                  <input value={editing.name ?? ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} className="input" />
-                </Field>
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Kategori">
-                    <select value={editing.category} onChange={(e) => setEditing({ ...editing, category: e.target.value as MenuItem["category"] })} className="input">
-                      {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </Field>
-                  <Field label="Harga Dasar (Rp)">
-                    <input type="number" min={0} value={editing.price ?? 0} onChange={(e) => setEditing({ ...editing, price: Number(e.target.value) })} className="input" />
-                  </Field>
-                </div>
-                <Field label="Deskripsi">
-                  <textarea rows={2} value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className="input resize-none" />
-                </Field>
-              </div>
-
-              <div className="h-px bg-border" />
-
-              {/* OPSI KUSTOMISASI SIMPLE */}
-              <div>
-                <div className="mb-4">
-                  <h3 className="font-semibold">Opsi Kustomisasi</h3>
-                  <p className="text-xs text-muted-foreground">Centang fitur yang ingin ditambahkan pada menu ini. Anda bisa mengubah harga tambahannya jika perlu.</p>
-                </div>
-
-                <div className="space-y-3">
-                  {PRESET_OPTIONS.map((preset) => {
-                    const activeGroup = (editing.options || []).find(o => o.name === preset.name);
-                    const isActive = !!activeGroup;
-
+                  {list.map((it, idx) => {
+                    const isAvailable = (it.available_branches || []).includes(branch);
+                    
                     return (
-                      <div key={preset.name} className={`rounded-xl border transition-all ${isActive ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                        <label className="flex cursor-pointer items-center gap-3 p-4">
-                          <input 
-                            type="checkbox" 
-                            className="size-4 accent-primary" 
-                            checked={isActive} 
-                            onChange={() => togglePreset(preset.name)} 
+                      <div key={it.id} className={`flex flex-wrap items-center gap-4 p-4 ${idx > 0 ? "border-t border-border" : ""}`}>
+                        <div className="size-16 shrink-0 overflow-hidden rounded-lg bg-accent/15">
+                          <img 
+                            src={it.image_url || `/images/${it.name.toLowerCase().replace(/\s+/g, '-')}.png`}
+                            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `/images/${it.category}.png`; }}
+                            alt={it.name} 
+                            className="h-full w-full object-cover" 
                           />
-                          <div className="flex-1">
-                            <div className="font-semibold">{preset.name}</div>
-                            <div className="text-xs text-muted-foreground">{preset.type === "wajib" ? "Wajib Pilih 1" : "Opsional (Bisa banyak / Maks 1)"}</div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">{it.name}</span>
+                            {!isAvailable && <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">Habis</span>}
                           </div>
+                          <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{it.description}</div>
+                        </div>
+                        <div className="font-display font-bold text-accent pr-4">{formatRupiah(it.price)}</div>
+                        <label className="inline-flex cursor-pointer items-center gap-2 text-sm font-semibold rounded-lg bg-secondary px-3 py-2 hover:bg-accent/10 transition">
+                          <input type="checkbox" checked={isAvailable} onChange={() => toggleAvail(it)} className="accent-[color:var(--accent)] size-4" />
+                          {isAvailable ? 'Tersedia' : 'Habis'}
                         </label>
-                        
-                        {isActive && activeGroup && (
-                          <div className="border-t border-primary/20 bg-background/50 p-4 space-y-3">
-                            {preset.choices.map((choice) => {
-                              const activeChoiceIndex = activeGroup.choices.findIndex(c => c.name === choice.name);
-                              const isChoiceActive = activeChoiceIndex !== -1;
-                              const activeChoice = isChoiceActive ? activeGroup.choices[activeChoiceIndex] : choice;
-
-                              return (
-                                <div key={choice.name} className={`flex items-center justify-between gap-4 transition-all ${!isChoiceActive ? 'opacity-40 grayscale' : ''}`}>
-                                  <label className="flex items-center gap-3 cursor-pointer">
-                                    <input 
-                                      type="checkbox" 
-                                      className="size-4 accent-primary" 
-                                      checked={isChoiceActive}
-                                      onChange={() => togglePresetChoice(preset.name, choice)}
-                                    />
-                                    <span className="text-sm font-medium">{choice.name}</span>
-                                  </label>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground">+Rp</span>
-                                    <input 
-                                      type="number"
-                                      value={activeChoice.price_diff}
-                                      onChange={(e) => isChoiceActive && updatePresetPrice(preset.name, activeChoiceIndex, Number(e.target.value))}
-                                      disabled={!isChoiceActive}
-                                      className="w-24 rounded-lg border border-border p-2 text-sm outline-none focus:border-primary bg-background disabled:bg-secondary/50"
-                                    />
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            </div>
-
-            <div className="border-t border-border p-5">
-              <label className="mb-4 flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={editing.available ?? true} onChange={(e) => setEditing({ ...editing, available: e.target.checked })} />
-                Tersedia untuk dipesan
-              </label>
-              <button onClick={save} disabled={saving} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground shadow hover:opacity-90 disabled:opacity-50">
-                {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-                Simpan Menu
-              </button>
-            </div>
-          </div>
-          <style>{`.input{width:100%;border:1px solid var(--border);border-radius:.75rem;padding:.65rem .9rem;font-size:.875rem;outline:none}.input:focus{border-color:var(--accent)}`}</style>
+              </section>
+            );
+          })}
         </div>
       )}
     </div>

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VouchersRouteImport } from './routes/vouchers'
 import { Route as VoucherRouteImport } from './routes/voucher'
 import { Route as TestimoniRouteImport } from './routes/testimoni'
 import { Route as TentangRouteImport } from './routes/tentang'
@@ -17,9 +18,11 @@ import { Route as SelectLocationRouteImport } from './routes/select-location'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PickupRouteImport } from './routes/pickup'
 import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as LokasiRouteImport } from './routes/lokasi'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as KopipediaRouteImport } from './routes/kopipedia'
 import { Route as DeliveryRouteImport } from './routes/delivery'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,8 +32,13 @@ import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
 import { Route as KopipediaArticleIdRouteImport } from './routes/kopipedia.$articleId'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminQrRouteImport } from './routes/_authenticated/admin.qr'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 
+const VouchersRoute = VouchersRouteImport.update({
+  id: '/vouchers',
+  path: '/vouchers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VoucherRoute = VoucherRouteImport.update({
   id: '/voucher',
   path: '/voucher',
@@ -71,6 +79,11 @@ const OrdersRoute = OrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -84,6 +97,11 @@ const LokasiRoute = LokasiRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KopipediaRoute = KopipediaRouteImport.update({
+  id: '/kopipedia',
+  path: '/kopipedia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DeliveryRoute = DeliveryRouteImport.update({
@@ -116,9 +134,9 @@ const OrderOrderIdRoute = OrderOrderIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const KopipediaArticleIdRoute = KopipediaArticleIdRouteImport.update({
-  id: '/kopipedia/$articleId',
-  path: '/kopipedia/$articleId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$articleId',
+  path: '/$articleId',
+  getParentRoute: () => KopipediaRoute,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
@@ -130,18 +148,21 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAdminQrRoute = AuthenticatedAdminQrRouteImport.update({
-  id: '/admin/qr',
-  path: '/admin/qr',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/admin/settings',
+    path: '/admin/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/delivery': typeof DeliveryRoute
+  '/kopipedia': typeof KopipediaRouteWithChildren
   '/login': typeof LoginRoute
   '/lokasi': typeof LokasiRoute
   '/menu': typeof MenuRoute
+  '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRoute
   '/pickup': typeof PickupRoute
   '/profile': typeof ProfileRoute
@@ -150,20 +171,23 @@ export interface FileRoutesByFullPath {
   '/tentang': typeof TentangRoute
   '/testimoni': typeof TestimoniRoute
   '/voucher': typeof VoucherRoute
+  '/vouchers': typeof VouchersRoute
   '/admin/login': typeof AdminLoginRoute
   '/kopipedia/$articleId': typeof KopipediaArticleIdRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
-  '/admin/qr': typeof AuthenticatedAdminQrRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/delivery': typeof DeliveryRoute
+  '/kopipedia': typeof KopipediaRouteWithChildren
   '/login': typeof LoginRoute
   '/lokasi': typeof LokasiRoute
   '/menu': typeof MenuRoute
+  '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRoute
   '/pickup': typeof PickupRoute
   '/profile': typeof ProfileRoute
@@ -172,12 +196,13 @@ export interface FileRoutesByTo {
   '/tentang': typeof TentangRoute
   '/testimoni': typeof TestimoniRoute
   '/voucher': typeof VoucherRoute
+  '/vouchers': typeof VouchersRoute
   '/admin/login': typeof AdminLoginRoute
   '/kopipedia/$articleId': typeof KopipediaArticleIdRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
-  '/admin/qr': typeof AuthenticatedAdminQrRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -185,9 +210,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/delivery': typeof DeliveryRoute
+  '/kopipedia': typeof KopipediaRouteWithChildren
   '/login': typeof LoginRoute
   '/lokasi': typeof LokasiRoute
   '/menu': typeof MenuRoute
+  '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRoute
   '/pickup': typeof PickupRoute
   '/profile': typeof ProfileRoute
@@ -196,12 +223,13 @@ export interface FileRoutesById {
   '/tentang': typeof TentangRoute
   '/testimoni': typeof TestimoniRoute
   '/voucher': typeof VoucherRoute
+  '/vouchers': typeof VouchersRoute
   '/admin/login': typeof AdminLoginRoute
   '/kopipedia/$articleId': typeof KopipediaArticleIdRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
-  '/_authenticated/admin/qr': typeof AuthenticatedAdminQrRoute
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -209,9 +237,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/delivery'
+    | '/kopipedia'
     | '/login'
     | '/lokasi'
     | '/menu'
+    | '/notifications'
     | '/orders'
     | '/pickup'
     | '/profile'
@@ -220,20 +250,23 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/testimoni'
     | '/voucher'
+    | '/vouchers'
     | '/admin/login'
     | '/kopipedia/$articleId'
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
-    | '/admin/qr'
+    | '/admin/settings'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/delivery'
+    | '/kopipedia'
     | '/login'
     | '/lokasi'
     | '/menu'
+    | '/notifications'
     | '/orders'
     | '/pickup'
     | '/profile'
@@ -242,21 +275,24 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/testimoni'
     | '/voucher'
+    | '/vouchers'
     | '/admin/login'
     | '/kopipedia/$articleId'
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
-    | '/admin/qr'
+    | '/admin/settings'
     | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/delivery'
+    | '/kopipedia'
     | '/login'
     | '/lokasi'
     | '/menu'
+    | '/notifications'
     | '/orders'
     | '/pickup'
     | '/profile'
@@ -265,12 +301,13 @@ export interface FileRouteTypes {
     | '/tentang'
     | '/testimoni'
     | '/voucher'
+    | '/vouchers'
     | '/admin/login'
     | '/kopipedia/$articleId'
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
-    | '/_authenticated/admin/qr'
+    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -278,9 +315,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   DeliveryRoute: typeof DeliveryRoute
+  KopipediaRoute: typeof KopipediaRouteWithChildren
   LoginRoute: typeof LoginRoute
   LokasiRoute: typeof LokasiRoute
   MenuRoute: typeof MenuRoute
+  NotificationsRoute: typeof NotificationsRoute
   OrdersRoute: typeof OrdersRoute
   PickupRoute: typeof PickupRoute
   ProfileRoute: typeof ProfileRoute
@@ -289,8 +328,8 @@ export interface RootRouteChildren {
   TentangRoute: typeof TentangRoute
   TestimoniRoute: typeof TestimoniRoute
   VoucherRoute: typeof VoucherRoute
+  VouchersRoute: typeof VouchersRoute
   AdminLoginRoute: typeof AdminLoginRoute
-  KopipediaArticleIdRoute: typeof KopipediaArticleIdRoute
   OrderOrderIdRoute: typeof OrderOrderIdRoute
   ReceiptOrderIdRoute: typeof ReceiptOrderIdRoute
   TableTableNumberRoute: typeof TableTableNumberRoute
@@ -298,6 +337,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vouchers': {
+      id: '/vouchers'
+      path: '/vouchers'
+      fullPath: '/vouchers'
+      preLoaderRoute: typeof VouchersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/voucher': {
       id: '/voucher'
       path: '/voucher'
@@ -354,6 +400,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -373,6 +426,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kopipedia': {
+      id: '/kopipedia'
+      path: '/kopipedia'
+      fullPath: '/kopipedia'
+      preLoaderRoute: typeof KopipediaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/delivery': {
@@ -419,10 +479,10 @@ declare module '@tanstack/react-router' {
     }
     '/kopipedia/$articleId': {
       id: '/kopipedia/$articleId'
-      path: '/kopipedia/$articleId'
+      path: '/$articleId'
       fullPath: '/kopipedia/$articleId'
       preLoaderRoute: typeof KopipediaArticleIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof KopipediaRoute
     }
     '/admin/login': {
       id: '/admin/login'
@@ -438,36 +498,50 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/qr': {
-      id: '/_authenticated/admin/qr'
-      path: '/admin/qr'
-      fullPath: '/admin/qr'
-      preLoaderRoute: typeof AuthenticatedAdminQrRouteImport
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAdminQrRoute: typeof AuthenticatedAdminQrRoute
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAdminQrRoute: AuthenticatedAdminQrRoute,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface KopipediaRouteChildren {
+  KopipediaArticleIdRoute: typeof KopipediaArticleIdRoute
+}
+
+const KopipediaRouteChildren: KopipediaRouteChildren = {
+  KopipediaArticleIdRoute: KopipediaArticleIdRoute,
+}
+
+const KopipediaRouteWithChildren = KopipediaRoute._addFileChildren(
+  KopipediaRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   DeliveryRoute: DeliveryRoute,
+  KopipediaRoute: KopipediaRouteWithChildren,
   LoginRoute: LoginRoute,
   LokasiRoute: LokasiRoute,
   MenuRoute: MenuRoute,
+  NotificationsRoute: NotificationsRoute,
   OrdersRoute: OrdersRoute,
   PickupRoute: PickupRoute,
   ProfileRoute: ProfileRoute,
@@ -476,8 +550,8 @@ const rootRouteChildren: RootRouteChildren = {
   TentangRoute: TentangRoute,
   TestimoniRoute: TestimoniRoute,
   VoucherRoute: VoucherRoute,
+  VouchersRoute: VouchersRoute,
   AdminLoginRoute: AdminLoginRoute,
-  KopipediaArticleIdRoute: KopipediaArticleIdRoute,
   OrderOrderIdRoute: OrderOrderIdRoute,
   ReceiptOrderIdRoute: ReceiptOrderIdRoute,
   TableTableNumberRoute: TableTableNumberRoute,

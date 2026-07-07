@@ -6,6 +6,8 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
+  useNavigate
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
@@ -114,11 +116,32 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function AuthGuard({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
+
+  useEffect(() => {
+    // Abaikan jika sedang di rute login atau rute admin
+    if (pathname === "/login" || pathname.startsWith("/admin")) return;
+
+    // Cek user di localStorage
+    const storedUser = localStorage.getItem("lnr_user");
+    if (!storedUser) {
+      navigate({ to: "/login" });
+    }
+  }, [pathname, navigate]);
+
+  return <>{children}</>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <AuthGuard>
+        <Outlet />
+      </AuthGuard>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

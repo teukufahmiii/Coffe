@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useTripayChannels } from "@/hooks/useTripayChannels";
 import { useAuth } from "@/hooks/useAuth";
 import { User as UserIcon } from "lucide-react";
+import { VoucherPicker, Voucher } from "../shared/VoucherPicker";
 
 type PickupCheckoutProps = {
   branchSlug: string;
@@ -22,6 +23,8 @@ type PickupCheckoutProps = {
     globalNote: string;
     paymentChannel: string;
     agreedTerms: boolean;
+    voucherId?: string;
+    discountAmount?: number;
   }) => Promise<void>;
   submitting: boolean;
 };
@@ -38,8 +41,10 @@ export function PickupCheckout({ branchSlug, cart, totals, adjustCartQty, onClos
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
   
-  const [useVoucher, setUseVoucher] = useState(false);
-  const voucherDiscount = useVoucher ? 8000 : 0;
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+  const voucherDiscount = selectedVoucher 
+    ? ((selectedVoucher.discount_type === "percent" || selectedVoucher.discount_type === "percentage" as any) ? (totals.total * selectedVoucher.discount_amount) / 100 : selectedVoucher.discount_amount)
+    : 0;
 
   const handleSubmit = () => {
     if (!selectedChannel) {
@@ -56,7 +61,9 @@ export function PickupCheckout({ branchSlug, cart, totals, adjustCartQty, onClos
       customerPhone,
       globalNote,
       paymentChannel: selectedChannel.code,
-      agreedTerms
+      agreedTerms,
+      voucherId: selectedVoucher?.id,
+      discountAmount: voucherDiscount
     });
   };
 
@@ -94,12 +101,6 @@ export function PickupCheckout({ branchSlug, cart, totals, adjustCartQty, onClos
               <span className="text-xs font-bold text-[#5C4033]">Estimasi siap diambil dalam 9 menit</span>
             </div>
           </div>
-        </div>
-
-        {/* Catatan Pesanan */}
-        <div className="bg-white p-4 space-y-4">
-          <h3 className="font-bold text-[15px]">Catatan Pesanan</h3>
-          <textarea value={globalNote} onChange={(e) => setGlobalNote(e.target.value)} placeholder="Catatan tambahan (opsional)" className="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#5C4033]" rows={2} />
         </div>
 
         {/* Detail Pesanan */}
@@ -147,27 +148,16 @@ export function PickupCheckout({ branchSlug, cart, totals, adjustCartQty, onClos
           </div>
         </div>
 
+        {/* Catatan Pesanan */}
+        <div className="bg-white p-4 space-y-4">
+          <h3 className="font-bold text-[15px]">Catatan Pesanan</h3>
+          <textarea value={globalNote} onChange={(e) => setGlobalNote(e.target.value)} placeholder="Catatan tambahan (opsional)" className="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#5C4033]" rows={2} />
+        </div>
+
         {/* Voucher Diskon */}
         <div className="bg-white p-4">
           <h3 className="font-bold text-[15px] mb-3">Voucher Diskon</h3>
-          <div className={`flex items-center justify-between p-3.5 rounded-xl border ${useVoucher ? 'border-[#5C4033] bg-[#5C4033]/10' : 'border-[#5C4033]/30 bg-background'}`}>
-            <div className="flex items-center gap-3">
-              <div className="grid size-9 place-items-center rounded-full bg-[#5C4033]/10">
-                <Ticket className="size-5 text-[#5C4033]" />
-              </div>
-              <div>
-                <div className="font-bold text-sm">1 voucher terbaik untukmu</div>
-                <div className="text-[11px] font-bold text-[#5C4033] mt-0.5">Dapat diskon Rp 8.000 🎉</div>
-              </div>
-            </div>
-            <button onClick={() => setUseVoucher(!useVoucher)} className="rounded-full border border-[#5C4033] px-4 py-1.5 text-xs font-bold text-[#5C4033] bg-white">
-              {useVoucher ? "Batal" : "Pakai"}
-            </button>
-          </div>
-          <button className="flex items-center justify-between w-full mt-4 px-1 pb-1">
-             <span className="text-[13px] text-muted-foreground font-medium">Lihat voucher lainnya</span>
-             <ChevronRight className="size-4 text-muted-foreground" />
-          </button>
+          <VoucherPicker subtotal={totals.total} selectedVoucher={selectedVoucher} onSelect={setSelectedVoucher} />
         </div>
 
         {/* Metode Pembayaran */}
@@ -209,7 +199,7 @@ export function PickupCheckout({ branchSlug, cart, totals, adjustCartQty, onClos
               <span className="text-muted-foreground">Harga</span>
               <span>{formatRupiah(totals.total)}</span>
           </div>
-          {useVoucher && (
+          {selectedVoucher && (
             <div className="flex items-center justify-between text-[13px] mb-2.5">
                 <span className="text-muted-foreground">Diskon Voucher</span>
                 <span className="text-destructive">-{formatRupiah(voucherDiscount)}</span>
@@ -232,7 +222,7 @@ export function PickupCheckout({ branchSlug, cart, totals, adjustCartQty, onClos
       </div>
       
       <div className="fixed inset-x-0 bottom-0 border-t border-border bg-white p-4">
-         <button onClick={handleSubmit} disabled={submitting || totals.count === 0 || !agreedTerms} className="inline-flex w-full items-center justify-center gap-2 rounded-[16px] bg-[#005B41] py-4 text-[15px] font-bold text-white shadow-md hover:opacity-90 disabled:opacity-50 transition">
+         <button onClick={handleSubmit} disabled={submitting || totals.count === 0 || !agreedTerms} className="inline-flex w-full items-center justify-center gap-2 rounded-[16px] bg-[#5C4033] py-4 text-[15px] font-bold text-white shadow-md hover:opacity-90 disabled:opacity-50 transition">
           {submitting ? <Loader2 className="size-5 animate-spin" /> : null}
           Pesan Sekarang
         </button>

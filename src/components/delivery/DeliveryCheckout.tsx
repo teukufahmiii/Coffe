@@ -5,6 +5,7 @@ import { DriverSelector } from "./DriverSelector";
 import { PaymentMethodModal } from "./PaymentMethodModal";
 import { DeliveryEstimation } from "./DeliveryEstimation";
 import { TermsCheckbox } from "../shared/TermsCheckbox";
+import { VoucherPicker, Voucher } from "../shared/VoucherPicker";
 import { DriverType } from "@/types/order";
 import { Cart, CartTotals } from "@/types/cart";
 import { PaymentChannel } from "@/types/payment";
@@ -28,6 +29,8 @@ type DeliveryCheckoutProps = {
     driverType: DriverType;
     paymentChannel: string;
     agreedTerms: boolean;
+    voucherId?: string;
+    discountAmount?: number;
   }) => Promise<void>;
   submitting: boolean;
 };
@@ -43,6 +46,11 @@ export function DeliveryCheckout({ branchSlug, cart, totals, adjustCartQty, onCl
   const [driverType, setDriverType] = useState<DriverType>("gosend");
   const [agreedTerms, setAgreedTerms] = useState(false);
   
+  const [selectedVoucher, setSelectedVoucher] = useState<Voucher | null>(null);
+  const voucherDiscount = selectedVoucher 
+    ? ((selectedVoucher.discount_type === "percent" || selectedVoucher.discount_type === "percentage" as any) ? (totals.total * selectedVoucher.discount_amount) / 100 : selectedVoucher.discount_amount)
+    : 0;
+
   const { data: channels, isLoading: loadingChannels, isError: channelsError, refetch: refetchChannels } = useTripayChannels();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
@@ -70,7 +78,9 @@ export function DeliveryCheckout({ branchSlug, cart, totals, adjustCartQty, onCl
       globalNote,
       driverType,
       paymentChannel: selectedChannel.code,
-      agreedTerms
+      agreedTerms,
+      voucherId: selectedVoucher?.id,
+      discountAmount: voucherDiscount
     });
   };
 
@@ -92,7 +102,7 @@ export function DeliveryCheckout({ branchSlug, cart, totals, adjustCartQty, onCl
   };
 
   const totalFee = selectedChannel?.total_fee.flat || 0;
-  const grandTotal = totals.total + totalFee;
+  const grandTotal = Math.max(0, totals.total - voucherDiscount) + totalFee;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-[#F9F9F9] overflow-hidden">
@@ -157,6 +167,12 @@ export function DeliveryCheckout({ branchSlug, cart, totals, adjustCartQty, onCl
             </p>
           </div>
           <textarea value={globalNote} onChange={(e) => setGlobalNote(e.target.value)} placeholder="Catatan tambahan (opsional)" className="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#5C4033]" rows={2} />
+        </div>
+
+        {/* Voucher Diskon */}
+        <div className="bg-white p-4">
+          <h3 className="font-bold text-[15px] mb-3">Voucher Diskon</h3>
+          <VoucherPicker subtotal={totals.total} selectedVoucher={selectedVoucher} onSelect={setSelectedVoucher} />
         </div>
 
         <div className="bg-white p-4">
@@ -232,6 +248,12 @@ export function DeliveryCheckout({ branchSlug, cart, totals, adjustCartQty, onCl
             <div className="flex items-center justify-between text-sm mb-3">
                 <span className="text-muted-foreground">Biaya Layanan</span>
                 <span>{formatRupiah(totalFee)}</span>
+            </div>
+          )}
+          {selectedVoucher && (
+            <div className="flex items-center justify-between text-[13px] mb-3">
+                <span className="text-muted-foreground">Diskon Voucher</span>
+                <span className="text-destructive">-{formatRupiah(voucherDiscount)}</span>
             </div>
           )}
           <div className="flex items-center justify-between text-base font-bold pt-3 border-t border-border">
