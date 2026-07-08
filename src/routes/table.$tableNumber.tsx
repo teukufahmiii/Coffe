@@ -112,6 +112,7 @@ function TableOrderPage() {
       setNote("");
       setShowCart(false);
       localStorage.setItem("lnr_active_order", order.id);
+      localStorage.setItem("lnr_has_ordered", "true");
       
       // Navigate to order page
       navigate({ to: "/order/$orderId", params: { orderId: order.id } });

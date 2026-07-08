@@ -11,19 +11,26 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VouchersRouteImport } from './routes/vouchers'
 import { Route as VoucherRouteImport } from './routes/voucher'
+import { Route as TutorialRouteImport } from './routes/tutorial'
 import { Route as TestimoniRouteImport } from './routes/testimoni'
 import { Route as TentangRouteImport } from './routes/tentang'
+import { Route as SyaratKetentuanRouteImport } from './routes/syarat-ketentuan'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SelectLocationRouteImport } from './routes/select-location'
+import { Route as PusatBantuanRouteImport } from './routes/pusat-bantuan'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PointsRouteImport } from './routes/points'
 import { Route as PickupRouteImport } from './routes/pickup'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as NearestOutletsRouteImport } from './routes/nearest-outlets'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as LokasiRouteImport } from './routes/lokasi'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as KopipediaRouteImport } from './routes/kopipedia'
+import { Route as KebijakanPrivasiRouteImport } from './routes/kebijakan-privasi'
 import { Route as DeliveryRouteImport } from './routes/delivery'
+import { Route as AiAssistantRouteImport } from './routes/ai-assistant'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TableTableNumberRouteImport } from './routes/table.$tableNumber'
@@ -33,6 +40,7 @@ import { Route as KopipediaArticleIdRouteImport } from './routes/kopipedia.$arti
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 
 const VouchersRoute = VouchersRouteImport.update({
   id: '/vouchers',
@@ -42,6 +50,11 @@ const VouchersRoute = VouchersRouteImport.update({
 const VoucherRoute = VoucherRouteImport.update({
   id: '/voucher',
   path: '/voucher',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TutorialRoute = TutorialRouteImport.update({
+  id: '/tutorial',
+  path: '/tutorial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestimoniRoute = TestimoniRouteImport.update({
@@ -54,6 +67,11 @@ const TentangRoute = TentangRouteImport.update({
   path: '/tentang',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SyaratKetentuanRoute = SyaratKetentuanRouteImport.update({
+  id: '/syarat-ketentuan',
+  path: '/syarat-ketentuan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -64,9 +82,19 @@ const SelectLocationRoute = SelectLocationRouteImport.update({
   path: '/select-location',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PusatBantuanRoute = PusatBantuanRouteImport.update({
+  id: '/pusat-bantuan',
+  path: '/pusat-bantuan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PointsRoute = PointsRouteImport.update({
+  id: '/points',
+  path: '/points',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PickupRoute = PickupRouteImport.update({
@@ -82,6 +110,11 @@ const OrdersRoute = OrdersRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearestOutletsRoute = NearestOutletsRouteImport.update({
+  id: '/nearest-outlets',
+  path: '/nearest-outlets',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MenuRoute = MenuRouteImport.update({
@@ -104,9 +137,19 @@ const KopipediaRoute = KopipediaRouteImport.update({
   path: '/kopipedia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KebijakanPrivasiRoute = KebijakanPrivasiRouteImport.update({
+  id: '/kebijakan-privasi',
+  path: '/kebijakan-privasi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeliveryRoute = DeliveryRouteImport.update({
   id: '/delivery',
   path: '/delivery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiAssistantRoute = AiAssistantRouteImport.update({
+  id: '/ai-assistant',
+  path: '/ai-assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -154,22 +197,35 @@ const AuthenticatedAdminSettingsRoute =
     path: '/admin/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminFinanceRoute =
+  AuthenticatedAdminFinanceRouteImport.update({
+    id: '/admin/finance',
+    path: '/admin/finance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
   '/delivery': typeof DeliveryRoute
+  '/kebijakan-privasi': typeof KebijakanPrivasiRoute
   '/kopipedia': typeof KopipediaRouteWithChildren
   '/login': typeof LoginRoute
   '/lokasi': typeof LokasiRoute
   '/menu': typeof MenuRoute
+  '/nearest-outlets': typeof NearestOutletsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRoute
   '/pickup': typeof PickupRoute
+  '/points': typeof PointsRoute
   '/profile': typeof ProfileRoute
+  '/pusat-bantuan': typeof PusatBantuanRoute
   '/select-location': typeof SelectLocationRoute
   '/settings': typeof SettingsRoute
+  '/syarat-ketentuan': typeof SyaratKetentuanRoute
   '/tentang': typeof TentangRoute
   '/testimoni': typeof TestimoniRoute
+  '/tutorial': typeof TutorialRoute
   '/voucher': typeof VoucherRoute
   '/vouchers': typeof VouchersRoute
   '/admin/login': typeof AdminLoginRoute
@@ -177,24 +233,32 @@ export interface FileRoutesByFullPath {
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
+  '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-assistant': typeof AiAssistantRoute
   '/delivery': typeof DeliveryRoute
+  '/kebijakan-privasi': typeof KebijakanPrivasiRoute
   '/kopipedia': typeof KopipediaRouteWithChildren
   '/login': typeof LoginRoute
   '/lokasi': typeof LokasiRoute
   '/menu': typeof MenuRoute
+  '/nearest-outlets': typeof NearestOutletsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRoute
   '/pickup': typeof PickupRoute
+  '/points': typeof PointsRoute
   '/profile': typeof ProfileRoute
+  '/pusat-bantuan': typeof PusatBantuanRoute
   '/select-location': typeof SelectLocationRoute
   '/settings': typeof SettingsRoute
+  '/syarat-ketentuan': typeof SyaratKetentuanRoute
   '/tentang': typeof TentangRoute
   '/testimoni': typeof TestimoniRoute
+  '/tutorial': typeof TutorialRoute
   '/voucher': typeof VoucherRoute
   '/vouchers': typeof VouchersRoute
   '/admin/login': typeof AdminLoginRoute
@@ -202,6 +266,7 @@ export interface FileRoutesByTo {
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
+  '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -209,19 +274,26 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/ai-assistant': typeof AiAssistantRoute
   '/delivery': typeof DeliveryRoute
+  '/kebijakan-privasi': typeof KebijakanPrivasiRoute
   '/kopipedia': typeof KopipediaRouteWithChildren
   '/login': typeof LoginRoute
   '/lokasi': typeof LokasiRoute
   '/menu': typeof MenuRoute
+  '/nearest-outlets': typeof NearestOutletsRoute
   '/notifications': typeof NotificationsRoute
   '/orders': typeof OrdersRoute
   '/pickup': typeof PickupRoute
+  '/points': typeof PointsRoute
   '/profile': typeof ProfileRoute
+  '/pusat-bantuan': typeof PusatBantuanRoute
   '/select-location': typeof SelectLocationRoute
   '/settings': typeof SettingsRoute
+  '/syarat-ketentuan': typeof SyaratKetentuanRoute
   '/tentang': typeof TentangRoute
   '/testimoni': typeof TestimoniRoute
+  '/tutorial': typeof TutorialRoute
   '/voucher': typeof VoucherRoute
   '/vouchers': typeof VouchersRoute
   '/admin/login': typeof AdminLoginRoute
@@ -229,6 +301,7 @@ export interface FileRoutesById {
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
+  '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -236,19 +309,26 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-assistant'
     | '/delivery'
+    | '/kebijakan-privasi'
     | '/kopipedia'
     | '/login'
     | '/lokasi'
     | '/menu'
+    | '/nearest-outlets'
     | '/notifications'
     | '/orders'
     | '/pickup'
+    | '/points'
     | '/profile'
+    | '/pusat-bantuan'
     | '/select-location'
     | '/settings'
+    | '/syarat-ketentuan'
     | '/tentang'
     | '/testimoni'
+    | '/tutorial'
     | '/voucher'
     | '/vouchers'
     | '/admin/login'
@@ -256,24 +336,32 @@ export interface FileRouteTypes {
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
+    | '/admin/finance'
     | '/admin/settings'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-assistant'
     | '/delivery'
+    | '/kebijakan-privasi'
     | '/kopipedia'
     | '/login'
     | '/lokasi'
     | '/menu'
+    | '/nearest-outlets'
     | '/notifications'
     | '/orders'
     | '/pickup'
+    | '/points'
     | '/profile'
+    | '/pusat-bantuan'
     | '/select-location'
     | '/settings'
+    | '/syarat-ketentuan'
     | '/tentang'
     | '/testimoni'
+    | '/tutorial'
     | '/voucher'
     | '/vouchers'
     | '/admin/login'
@@ -281,25 +369,33 @@ export interface FileRouteTypes {
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
+    | '/admin/finance'
     | '/admin/settings'
     | '/admin'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/ai-assistant'
     | '/delivery'
+    | '/kebijakan-privasi'
     | '/kopipedia'
     | '/login'
     | '/lokasi'
     | '/menu'
+    | '/nearest-outlets'
     | '/notifications'
     | '/orders'
     | '/pickup'
+    | '/points'
     | '/profile'
+    | '/pusat-bantuan'
     | '/select-location'
     | '/settings'
+    | '/syarat-ketentuan'
     | '/tentang'
     | '/testimoni'
+    | '/tutorial'
     | '/voucher'
     | '/vouchers'
     | '/admin/login'
@@ -307,6 +403,7 @@ export interface FileRouteTypes {
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
+    | '/_authenticated/admin/finance'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -314,19 +411,26 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AiAssistantRoute: typeof AiAssistantRoute
   DeliveryRoute: typeof DeliveryRoute
+  KebijakanPrivasiRoute: typeof KebijakanPrivasiRoute
   KopipediaRoute: typeof KopipediaRouteWithChildren
   LoginRoute: typeof LoginRoute
   LokasiRoute: typeof LokasiRoute
   MenuRoute: typeof MenuRoute
+  NearestOutletsRoute: typeof NearestOutletsRoute
   NotificationsRoute: typeof NotificationsRoute
   OrdersRoute: typeof OrdersRoute
   PickupRoute: typeof PickupRoute
+  PointsRoute: typeof PointsRoute
   ProfileRoute: typeof ProfileRoute
+  PusatBantuanRoute: typeof PusatBantuanRoute
   SelectLocationRoute: typeof SelectLocationRoute
   SettingsRoute: typeof SettingsRoute
+  SyaratKetentuanRoute: typeof SyaratKetentuanRoute
   TentangRoute: typeof TentangRoute
   TestimoniRoute: typeof TestimoniRoute
+  TutorialRoute: typeof TutorialRoute
   VoucherRoute: typeof VoucherRoute
   VouchersRoute: typeof VouchersRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -351,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VoucherRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tutorial': {
+      id: '/tutorial'
+      path: '/tutorial'
+      fullPath: '/tutorial'
+      preLoaderRoute: typeof TutorialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/testimoni': {
       id: '/testimoni'
       path: '/testimoni'
@@ -363,6 +474,13 @@ declare module '@tanstack/react-router' {
       path: '/tentang'
       fullPath: '/tentang'
       preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/syarat-ketentuan': {
+      id: '/syarat-ketentuan'
+      path: '/syarat-ketentuan'
+      fullPath: '/syarat-ketentuan'
+      preLoaderRoute: typeof SyaratKetentuanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -379,11 +497,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SelectLocationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pusat-bantuan': {
+      id: '/pusat-bantuan'
+      path: '/pusat-bantuan'
+      fullPath: '/pusat-bantuan'
+      preLoaderRoute: typeof PusatBantuanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/points': {
+      id: '/points'
+      path: '/points'
+      fullPath: '/points'
+      preLoaderRoute: typeof PointsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pickup': {
@@ -405,6 +537,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nearest-outlets': {
+      id: '/nearest-outlets'
+      path: '/nearest-outlets'
+      fullPath: '/nearest-outlets'
+      preLoaderRoute: typeof NearestOutletsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/menu': {
@@ -435,11 +574,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KopipediaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kebijakan-privasi': {
+      id: '/kebijakan-privasi'
+      path: '/kebijakan-privasi'
+      fullPath: '/kebijakan-privasi'
+      preLoaderRoute: typeof KebijakanPrivasiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/delivery': {
       id: '/delivery'
       path: '/delivery'
       fullPath: '/delivery'
       preLoaderRoute: typeof DeliveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-assistant': {
+      id: '/ai-assistant'
+      path: '/ai-assistant'
+      fullPath: '/ai-assistant'
+      preLoaderRoute: typeof AiAssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -505,15 +658,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/finance': {
+      id: '/_authenticated/admin/finance'
+      path: '/admin/finance'
+      fullPath: '/admin/finance'
+      preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
@@ -536,19 +698,26 @@ const KopipediaRouteWithChildren = KopipediaRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AiAssistantRoute: AiAssistantRoute,
   DeliveryRoute: DeliveryRoute,
+  KebijakanPrivasiRoute: KebijakanPrivasiRoute,
   KopipediaRoute: KopipediaRouteWithChildren,
   LoginRoute: LoginRoute,
   LokasiRoute: LokasiRoute,
   MenuRoute: MenuRoute,
+  NearestOutletsRoute: NearestOutletsRoute,
   NotificationsRoute: NotificationsRoute,
   OrdersRoute: OrdersRoute,
   PickupRoute: PickupRoute,
+  PointsRoute: PointsRoute,
   ProfileRoute: ProfileRoute,
+  PusatBantuanRoute: PusatBantuanRoute,
   SelectLocationRoute: SelectLocationRoute,
   SettingsRoute: SettingsRoute,
+  SyaratKetentuanRoute: SyaratKetentuanRoute,
   TentangRoute: TentangRoute,
   TestimoniRoute: TestimoniRoute,
+  TutorialRoute: TutorialRoute,
   VoucherRoute: VoucherRoute,
   VouchersRoute: VouchersRoute,
   AdminLoginRoute: AdminLoginRoute,

@@ -7,6 +7,7 @@ import { formatRupiah } from "@/lib/format";
 import { useCart } from "@/hooks/useCart";
 import { useMenuItems } from "@/hooks/useMenuItems";
 import { MenuCard } from "@/components/shared/MenuCard";
+import { MenuList } from "@/components/shared/MenuList";
 import { ItemDetailModal } from "@/components/shared/ItemDetailModal";
 import { PickupCheckout } from "@/components/pickup/PickupCheckout";
 import { LocationPicker } from "@/components/shared/LocationPicker";
@@ -65,7 +66,7 @@ function PickUpOrderPage() {
         customer_phone: details.customerPhone,
         payment_channel: details.paymentChannel,
         agreed_terms: details.agreedTerms,
-        voucher_id: details.voucherId || null
+        voucher_id: details.voucherId === 'system-newuser' ? null : (details.voucherId || null)
       };
 
       const { data: order, error } = await supabase
@@ -96,7 +97,19 @@ function PickUpOrderPage() {
         clearCart();
         setShowCheckout(false);
         localStorage.setItem("lnr_active_order", order.id);
+        localStorage.setItem("lnr_has_ordered", "true");
         
+        // Award LNR Points
+        try {
+          const { data: profile } = await supabase.from('profiles').select('points, phone').eq('phone', details.customerPhone).single();
+          if (profile) {
+            const pointsToAdd = totals.count > 1 ? 3 : 1;
+            await supabase.from('profiles').update({ points: (profile.points || 0) + pointsToAdd }).eq('phone', details.customerPhone);
+          }
+        } catch (e) {
+          console.error("Error adding points:", e);
+        }
+
         // Instead of redirecting to Tripay checkout page, 
         // we go to our own order page which will show the QR / Instructions
         navigate({ to: "/order/$orderId", params: { orderId: order.id } });
@@ -140,24 +153,14 @@ function PickUpOrderPage() {
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-5">
-        {isLoading && <div className="space-y-3">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-secondary" />)}</div>}
-        <div className="space-y-3">
-          {filtered.map((m) => (
-            <MenuCard 
-              key={m.id}
-              id={m.id}
-              name={m.name}
-              price={m.price}
-              description={m.description}
-              image_url={m.image_url}
-              category={m.category}
-              qty={cart[m.id]?.qty || 0}
-              onAdd={() => adjustQty({ id: m.id, name: m.name, price: m.price, image_url: m.image_url, category: m.category }, 1)}
-              onRemove={() => adjustQty({ id: m.id, name: m.name, price: m.price, image_url: m.image_url, category: m.category }, -1)}
-              onClick={() => setSelectedItem(m)}
-            />
-          ))}
-        </div>
+        <MenuList 
+          items={items ?? []}
+          category={cat}
+          cart={cart}
+          adjustQty={adjustQty}
+          setSelectedItem={setSelectedItem}
+          isLoading={isLoading}
+        />
       </main>
 
       <ItemDetailModal 

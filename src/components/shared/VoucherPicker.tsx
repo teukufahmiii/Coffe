@@ -42,10 +42,11 @@ export function VoucherPicker({
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .then(({ data }) => {
+          const isNewUser = !localStorage.getItem("lnr_has_ordered");
           if (data) {
-            setVouchers([SYSTEM_VOUCHER, ...(data as Voucher[])]);
+            setVouchers(isNewUser ? [SYSTEM_VOUCHER, ...(data as Voucher[])] : (data as Voucher[]));
           } else {
-            setVouchers([SYSTEM_VOUCHER]);
+            setVouchers(isNewUser ? [SYSTEM_VOUCHER] : []);
           }
           setLoading(false);
         });

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Coffee, LayoutDashboard, QrCode, LogOut, Package, Store, BellRing, Ticket, ShieldCheck } from "lucide-react";
+import { Coffee, LayoutDashboard, QrCode, LogOut, Package, Store, BellRing, Ticket, ShieldCheck, BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 const LINKS = [
   { to: "/admin/settings", label: "Master Admin", icon: ShieldCheck },
   { to: "/admin", label: "Outlet Dashboard", icon: Store },
+  { to: "/admin/finance", label: "Laporan Keuangan", icon: BarChart3 },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {

@@ -86,18 +86,13 @@ function OrderTrackingPage() {
   let steps = [
     { id: "pending", label: "Menunggu Pembayaran", icon: CreditCard, activeStates: ["pending"] },
     { id: "paid", label: "Di Proses", icon: ChefHat, activeStates: ["paid"] },
-    { id: "cooking", label: "Pesanan Dibuat", icon: Coffee, activeStates: ["cooking"] },
     { id: "served", label: isDelivery ? "Dikirim Driver" : "Siap Diambil", icon: isDelivery ? Bike : MapPin, activeStates: ["served"] },
     { id: "completed", label: "Pesanan Selesai", icon: CheckCircle2, activeStates: ["completed"] }
   ];
 
-  if (isPickup) {
-    steps = steps.filter(s => s.id !== "served");
-  }
-
   const currentStepIndex = steps.findIndex(s => s.activeStates.includes(order.status));
 
-  if (order.status === 'completed' || order.status === 'served') {
+  if (order.status === 'completed') {
     return <CompletedOrderView order={order} />;
   }
 

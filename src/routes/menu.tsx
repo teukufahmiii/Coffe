@@ -94,7 +94,7 @@ function MenuPage() {
                       e.currentTarget.src = `/images/${m.category}.png`;
                     }}
                     alt={m.name} 
-                    className="h-full w-full object-cover" 
+                    className="h-full w-full object-contain" 
                   />
                 </div>
                 <div className="flex items-baseline justify-between gap-3">

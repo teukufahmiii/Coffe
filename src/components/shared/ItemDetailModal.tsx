@@ -76,7 +76,7 @@ export function ItemDetailModal({ selectedItem, setSelectedItem, onAdd }: ItemDe
                 e.currentTarget.src = `/images/${selectedItem.category}.png`;
               }}
               alt={selectedItem.name}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain"
             />
           </div>
           <button 

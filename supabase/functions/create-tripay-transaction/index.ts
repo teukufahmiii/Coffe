@@ -75,11 +75,14 @@ serve(async (req) => {
       customer_name: customerName,
       customer_email: "customer@lnrcoffee.com",
       customer_phone: customerPhone,
-      order_items: items?.map(item => ({
-        name: item.name,
-        price: item.price,
-        quantity: item.qty
-      })) || [{ name: "Pesanan LNR", price: amount, quantity: 1 }],
+      order_items: [
+        {
+          sku: "ORDER",
+          name: "Pesanan LNR Coffee",
+          price: amount,
+          quantity: 1
+        }
+      ],
       return_url: `${returnUrl}/order/${orderId}`,
       expired_time: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
       signature

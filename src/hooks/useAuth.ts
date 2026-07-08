@@ -136,5 +136,33 @@ export function useAuth() {
     return true;
   };
 
-  return { user, loading, login, register, checkPhone, logout, updateProfile };
+  const changePin = async (oldPin: string, newPin: string) => {
+    if (!user) return { success: false, message: "Belum masuk" };
+    
+    // Verifikasi PIN lama
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("pin")
+      .eq("phone", user.phone)
+      .eq("pin", oldPin)
+      .limit(1);
+      
+    if (error || !data || data.length === 0) {
+      return { success: false, message: "PIN lama salah" };
+    }
+    
+    // Update PIN baru
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ pin: newPin })
+      .eq("phone", user.phone);
+      
+    if (updateError) {
+      return { success: false, message: "Gagal mengganti PIN" };
+    }
+    
+    return { success: true, message: "PIN berhasil diubah" };
+  };
+
+  return { user, loading, login, register, checkPhone, logout, updateProfile, changePin };
 }

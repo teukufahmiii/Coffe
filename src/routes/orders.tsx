@@ -40,7 +40,7 @@ function OrdersPage() {
         ) : (
           orders.map((order) => {
             const dateStr = order.created_at ? format(new Date(order.created_at), "d MMM yyyy HH:mm", { locale: id }) : "";
-            const isCompleted = order.status === "completed" || order.status === "served";
+            const isCompleted = order.status === "completed";
             const isDelivery = order.order_type === "delivery";
             const firstItem = order.order_items?.[0];
             const itemCount = order.order_items?.reduce((sum, i) => sum + i.qty, 0) || 0;
@@ -69,9 +69,13 @@ function OrdersPage() {
                       <div className="text-[11px] text-muted-foreground mt-0.5">{dateStr}</div>
                     </div>
                   </div>
-                  {isCompleted ? (
+                  {order.status === "completed" ? (
                     <div className="bg-[#5C4033]/10 text-[#5C4033] px-3 py-1 rounded-full text-[11px] font-bold">
                       Selesai
+                    </div>
+                  ) : order.status === "served" ? (
+                    <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[11px] font-bold">
+                      {isDelivery ? "Dikirim Driver" : "Siap Diambil"}
                     </div>
                   ) : (
                     <div className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[11px] font-bold">

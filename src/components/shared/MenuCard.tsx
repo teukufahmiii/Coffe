@@ -38,7 +38,7 @@ export function MenuCard({
             e.currentTarget.src = `/images/${category}.png`;
           }}
           alt={name} 
-          className="h-full w-full object-cover" 
+          className="h-full w-full object-contain" 
         />
       </div>
       <div className="flex min-w-0 flex-1 flex-col">

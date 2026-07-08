@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Navbar } from "@/components/Navbar";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ChevronLeft } from "lucide-react";
 import heroImg from "@/assets/hero-cafe.jpg";
 
 export const Route = createFileRoute("/tentang")({
@@ -13,13 +13,26 @@ export const Route = createFileRoute("/tentang")({
 });
 
 function TentangPage() {
+  const navigate = useNavigate();
+  
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="min-h-screen bg-[#F6F3EC] flex flex-col">
+      {/* SIMPLE HEADER DENGAN TOMBOL KEMBALI */}
+      <div className="bg-white px-4 py-4 md:px-6 shadow-sm border-b border-black/5 flex items-center sticky top-0 z-50">
+        <button 
+          onClick={() => navigate({ to: "/profile" })}
+          className="p-2 rounded-full hover:bg-black/5 transition-colors absolute left-4"
+        >
+          <ChevronLeft className="size-6 text-[#5C4033]" />
+        </button>
+        <h1 className="font-display font-bold text-lg md:text-xl text-[#5C4033] mx-auto">
+          Tentang LNR
+        </h1>
+      </div>
       
-      <main className="flex-1 pt-[112px] md:pt-[130px]">
+      <main className="flex-1">
         {/* ABOUT */}
-        <section id="about" className="bg-[#F6F3EC] py-24 min-h-[calc(100vh-130px)] flex items-center">
+        <section id="about" className="py-12 md:py-24 flex items-center">
           <div className="mx-auto max-w-6xl px-6 w-full">
             <div className="grid gap-12 md:grid-cols-2 md:items-center">
               <div className="order-2 md:order-1 relative">
