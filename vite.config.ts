@@ -7,12 +7,14 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  server: {
-    proxy: {
-      '/api/tripay': {
-        target: 'https://tripay.co.id/api-sandbox',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/tripay/, '')
+  vite: {
+    server: {
+      proxy: {
+        '/api/tripay': {
+          target: 'https://tripay.co.id/api-sandbox',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/tripay/, '')
+        }
       }
     }
   },

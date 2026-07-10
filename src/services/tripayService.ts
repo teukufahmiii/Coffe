@@ -7,9 +7,8 @@ const TRIPAY_MERCHANT_CODE = import.meta.env.VITE_TRIPAY_MERCHANT_CODE;
 
 export const tripayService = {
   async getPaymentChannels(): Promise<PaymentChannel[]> {
-    const targetUrl = 'https://tripay.co.id/api-sandbox/merchant/payment-channel';
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-    const response = await fetch(proxyUrl, {
+    const targetUrl = '/api/tripay/merchant/payment-channel';
+    const response = await fetch(targetUrl, {
       method: "GET",
       headers: {
         'Authorization': `Bearer ${TRIPAY_API_KEY}`,
@@ -82,10 +81,9 @@ export const tripayService = {
       signature
     };
 
-    const targetUrl = 'https://tripay.co.id/api-sandbox/transaction/create';
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+    const targetUrl = '/api/tripay/transaction/create';
     
-    const response = await fetch(proxyUrl, {
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${TRIPAY_API_KEY}`,

@@ -32,7 +32,7 @@ function KopiPediaPage() {
           {KOPIPEDIA_ARTICLES.map((article) => (
             <Link 
               key={article.id}
-              to={`/kopipedia/$articleId`}
+              to="/kopipedia/$articleId"
               params={{ articleId: article.id }}
               className="flex flex-col gap-3 rounded-2xl bg-[#F9F6F0] p-5 border-2 border-black hover:-translate-y-2 hover:shadow-lg transition-all group"
             >

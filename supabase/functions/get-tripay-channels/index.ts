@@ -12,7 +12,36 @@ serve(async (req) => {
   }
 
   try {
-    const TRIPAY_API_KEY = Deno.env.get('TRIPAY_API_KEY') || 'DEV-BYENBpPByxR2CK3nd3cD1ml9LO01LP6kWiPpTL38';
+    const TRIPAY_API_KEY = Deno.env.get('TRIPAY_API_KEY') || 'DEV-FuifX106CyACBaYJ6VCgCCLEbgJ8gj24iSelutnw';
+    
+    // Using Sandbox URL
+    const response = await fetch('https://tripay.co.id/api-sandbox/merchant/payment-channel', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${TRIPAY_API_KEY}`
+      }
+    });
+
+    const data = await response.json();
+
+    return new Response(
+      JSON.stringify(data),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    )
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400,
+      }
+    )
+  }
+})
+
     
     // Using Sandbox URL
     const response = await fetch('https://tripay.co.id/api-sandbox/merchant/payment-channel', {
