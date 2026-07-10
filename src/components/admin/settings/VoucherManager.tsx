@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, X, Upload, Save, Ticket } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, X, Upload, Save, Ticket, Star } from "lucide-react";
 import { formatRupiah } from "@/lib/format";
 
 function VoucherManager() {
@@ -221,7 +221,7 @@ function VoucherManager() {
                     </h3>
                     <div className="text-xs text-muted-foreground font-medium flex items-center gap-2 mt-1">
                       <span className="font-bold text-primary">{voucher.code}</span>
-                      <span>•</span>
+                      <span>â€¢</span>
                       <span>Diskon: {voucher.discount_type === 'percentage' ? `${voucher.discount_amount}%` : `Rp ${voucher.discount_amount.toLocaleString('id-ID')}`}</span>
                     </div>
                     <div className="text-[10px] text-muted-foreground mt-1 flex gap-3">
@@ -277,7 +277,7 @@ function VoucherManager() {
                   </h3>
                   <div className="text-xs text-muted-foreground font-medium flex items-center gap-2 mt-1">
                     <span className="font-bold text-primary">NEWUSER15</span>
-                    <span>•</span>
+                    <span>â€¢</span>
                     <span>Diskon: 15%</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-1 flex gap-3">
@@ -309,7 +309,7 @@ function VoucherManager() {
                   </h3>
                   <div className="text-xs text-muted-foreground font-medium flex items-center gap-2 mt-1">
                     <span className="font-bold text-primary">PTS-10</span>
-                    <span>•</span>
+                    <span>â€¢</span>
                     <span>Diskon: 10%</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-1 flex gap-3">
@@ -341,7 +341,7 @@ function VoucherManager() {
                   </h3>
                   <div className="text-xs text-muted-foreground font-medium flex items-center gap-2 mt-1">
                     <span className="font-bold text-primary">PTS-20</span>
-                    <span>•</span>
+                    <span>â€¢</span>
                     <span>Diskon: 20%</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-1 flex gap-3">
@@ -373,7 +373,7 @@ function VoucherManager() {
                   </h3>
                   <div className="text-xs text-muted-foreground font-medium flex items-center gap-2 mt-1">
                     <span className="font-bold text-primary">PTS-35</span>
-                    <span>•</span>
+                    <span>â€¢</span>
                     <span>Diskon: 35%</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-1 flex gap-3">
@@ -397,12 +397,20 @@ function VoucherManager() {
 }
 
 
-type Notification = {
+type Voucher = {
   id: string;
-  title: string;
-  content: string;
-  image_url: string | null;
+  code: string;
+  title: string | null;
+  valid_until: string | null;
+  discount_type: "percentage" | "fixed";
+  discount_amount: number;
+  min_order_amount: number;
+  points_required: number;
   is_active: boolean;
+  is_visual: boolean;
+  is_permanent: boolean;
   created_at: string;
 };
 
+
+export { VoucherManager };

@@ -123,9 +123,9 @@ function AIAssistantPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F6F0] flex flex-col font-sans">
+    <div className="h-[100dvh] bg-[#F9F6F0] flex flex-col font-sans overflow-hidden">
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-white border-b-2 border-black px-4 py-4 flex items-center justify-between shadow-sm">
+      <header className="shrink-0 bg-white border-b-2 border-black px-4 py-3 md:py-4 flex items-center justify-between shadow-sm z-50">
         <button 
           onClick={() => navigate({ to: "/" })}
           className="p-2 -ml-2 rounded-xl border border-transparent hover:border-black/10 hover:bg-black/5 transition-all"
@@ -140,7 +140,7 @@ function AIAssistantPage() {
       </header>
 
       {/* CHAT CONTAINER */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 pb-24 max-w-3xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 max-w-3xl mx-auto w-full scroll-smooth">
         {messages.map((msg) => (
           <div 
             key={msg.id} 
@@ -191,7 +191,7 @@ function AIAssistantPage() {
       </div>
 
       {/* INPUT AREA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-black p-3 md:p-4 z-40">
+      <div className="shrink-0 bg-white border-t-2 border-black p-3 md:p-4 pb-[calc(env(safe-area-inset-bottom)+12px)] z-40 w-full">
         <div className="max-w-3xl mx-auto">
           <form 
             onSubmit={handleSendMessage}
@@ -207,15 +207,15 @@ function AIAssistantPage() {
                 }
               }}
               placeholder="Tanya asisten tentang LNR..."
-              className="flex-1 max-h-32 min-h-[44px] bg-transparent border-none outline-none py-3 resize-none text-sm md:text-base"
+              className="flex-1 max-h-32 min-h-[44px] bg-transparent border-none outline-none py-3 resize-none text-base"
               rows={1}
             />
             <button
               type="submit"
               disabled={!inputMessage.trim() || isLoading}
-              className="mb-1 mr-1 p-3 rounded-full bg-primary text-white disabled:bg-gray-300 disabled:text-gray-500 hover:-translate-y-0.5 transition-all"
+              className="mb-1 mr-1 p-2 md:p-3 rounded-full bg-primary text-white disabled:bg-gray-300 disabled:text-gray-500 hover:-translate-y-0.5 transition-all"
             >
-              <Send className="size-4" />
+              <Send className="size-4 md:size-5" />
             </button>
           </form>
         </div>

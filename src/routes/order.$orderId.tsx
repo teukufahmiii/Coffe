@@ -107,7 +107,7 @@ function OrderTrackingPage() {
           <div className="rounded-3xl border border-border bg-card p-6 md:p-8 shadow-soft">
             <div className="flex flex-col items-center justify-center mb-8 relative">
               <h1 className="font-display text-3xl font-bold">Status Pesanan</h1>
-              <p className="text-muted-foreground text-sm mt-1">ID Pesanan: {order.id.slice(0, 8).toUpperCase()}</p>
+              <p className="text-muted-foreground text-sm mt-1">No. Antrean: #{order.queue_number || order.id.slice(0, 8).toUpperCase()}</p>
 
               {order.status === 'pending' && (
                 <button 

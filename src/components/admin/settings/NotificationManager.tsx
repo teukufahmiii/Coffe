@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 import { toast } from "sonner";
-import { Loader2, BellRing, Save, Trash2, CheckCircle2 } from "lucide-react";
+import { Loader2, BellRing, Save, Trash2, CheckCircle2, Plus, Image as ImageIcon } from "lucide-react";
+
+type AppNotification = Database["public"]["Tables"]["notifications"]["Row"];
 
 function NotificationManager() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Form State
@@ -244,3 +247,5 @@ function NotificationManager() {
 }
 
 
+
+export { NotificationManager };

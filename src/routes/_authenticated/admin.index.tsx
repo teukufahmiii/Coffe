@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Search, Store, ChefHat, Package, UtensilsCrossed, Star, DollarSign, ChevronRight } from "lucide-react";
+import { Search, Store, ChefHat, Package, UtensilsCrossed, Star, DollarSign, ChevronRight, Calculator } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/admin-shell";
@@ -8,6 +8,10 @@ import { OutletFinanceBoard } from "@/components/admin/OutletFinanceBoard";
 import { DashboardPesananAktif } from "@/components/admin/dashboard/DashboardPesananAktif";
 import { MenuManager } from "@/components/admin/dashboard/MenuManager";
 import { ReviewBoard } from "@/components/admin/dashboard/ReviewBoard";
+import { PosSystem } from "@/components/admin/dashboard/PosSystem";
+import { PinGuard } from "@/components/PinGuard";
+import { QrManager } from "@/components/admin/settings/QrManager";
+import { QrCode } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Outlet Dashboard — LNR Admin" }, { name: "robots", content: "noindex" }] }),
@@ -17,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 function OutletDashboard() {
   const [activeBranch, setActiveBranch] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState<"pickup" | "delivery" | "menu" | "ulasan" | "finance">("pickup");
+  const [activeTab, setActiveTab] = useState<"kasir" | "pickup" | "delivery" | "menu" | "ulasan" | "finance" | "qr">("kasir");
 
   const [outlets, setOutlets] = useState<any[]>([]);
 
@@ -102,8 +106,15 @@ function OutletDashboard() {
 
   // 2. MAIN DASHBOARD SCREEN
   return (
-    <AdminShell>
-      <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+    <PinGuard 
+      title={`Akses Outlet: ${selectedOutletName}`} 
+      pinType="outlet" 
+      outletSlug={activeBranch}
+      onBack={() => setActiveBranch(null)}
+      onSuccess={() => {}} 
+    >
+      <AdminShell>
+        <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase flex items-center gap-1 ${isOutletActive ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
@@ -132,6 +143,12 @@ function OutletDashboard() {
       </div>
 
       <div className="mb-6 flex gap-2 border-b border-border pb-px overflow-x-auto">
+        <button 
+          onClick={() => setActiveTab("kasir")}
+          className={`flex shrink-0 items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${activeTab === "kasir" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          <Calculator className="size-4" /> Kasir (POS)
+        </button>
         <button 
           onClick={() => setActiveTab("pickup")}
           className={`flex shrink-0 items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${activeTab === "pickup" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
@@ -162,13 +179,22 @@ function OutletDashboard() {
         >
           <DollarSign className="size-4" /> Keuangan Outlet
         </button>
+        <button 
+          onClick={() => setActiveTab("qr")}
+          className={`flex shrink-0 items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition ${activeTab === "qr" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+        >
+          <QrCode className="size-4" /> QR Website
+        </button>
       </div>
 
+      {activeTab === "kasir" && <PosSystem branch={activeOutlet} />}
       {activeTab === "pickup" && <DashboardPesananAktif branch={activeBranch} type={98} />}
       {activeTab === "delivery" && <DashboardPesananAktif branch={activeBranch} type={99} />}
       {activeTab === "menu" && <MenuManager branch={activeBranch} />}
       {activeTab === "ulasan" && <ReviewBoard branch={activeBranch} />}
       {activeTab === "finance" && <OutletFinanceBoard branch={activeBranch} />}
-    </AdminShell>
+      {activeTab === "qr" && <QrManager />}
+      </AdminShell>
+    </PinGuard>
   );
 }

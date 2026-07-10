@@ -1,63 +1,51 @@
 # User Flow Aplikasi LNR Coffee
 
-Dokumen ini mendeskripsikan bagaimana alur pengguna (User Flow) dalam menggunakan aplikasi LNR Coffee, mulai dari pertama kali membuka aplikasi hingga berhasil melakukan pemesanan.
+Dokumen ini mendeskripsikan bagaimana alur pengguna (User Flow) dalam menggunakan aplikasi LNR Coffee, mencakup berbagai peran (Pelanggan, Kasir, Master Admin, dan Developer).
 
 ---
 
-## 1. Akses Beranda & Autentikasi
-1. **Membuka Aplikasi**: Pengguna membuka *Landing Page* (Beranda). 
-2. **Cek Status Login**: Sistem akan memeriksa status autentikasi melalui `useAuth`. Jika belum login, tombol akses ke fitur krusial akan mengarahkan pengguna ke proses Login.
-3. **Proses Login / Registrasi**: 
-   - Pengguna memasukkan **Nomor WhatsApp** dan **PIN**.
-   - Sistem memverifikasi data di Supabase (tabel `profiles`).
-   - Jika berhasil, token sesi tersimpan, dan pengguna kembali diarahkan ke Beranda dengan tampilan yang menampilkan sapaan "Hi, [Nama]" serta jumlah LNR Point mereka.
+## 1. Alur Pelanggan (Customer Flow)
+
+### A. Akses Beranda & Autentikasi
+1. **Membuka Aplikasi**: Pengguna membuka *Landing Page*.
+2. **Proses Login**: Pelanggan cukup memasukkan **Nomor WhatsApp**.
+3. **Pilih Tipe Pesanan**: Memilih antara **Pick Up**, **Delivery**, atau **Dine-in** (Scan QR di meja).
+
+### B. Pemilihan Lokasi & Menu
+1. **Pilih Cabang Pintar**: Sistem mendeteksi lokasi pelanggan menggunakan GPS dan langsung menyorot cabang dengan label **Terdekat**.
+2. **Kustomisasi Item**: Memilih menu kopi/snack dan menambahkannya ke keranjang.
+
+### C. Pembayaran & Pelacakan
+1. **Checkout**: Mengonfirmasi pesanan dan menggunakan voucher diskon atau *LNR Points*.
+2. **Pembayaran**: Integrasi otomatis menggunakan metode pembayaran yang disediakan.
+3. **Lacak Real-Time**: Status pesanan berubah seketika tanpa perlu *refresh* (Pending ➔ Dimasak ➔ Disajikan).
+4. **Ulasan**: Pelanggan dapat memberikan rating bintang setelah pesanan selesai.
 
 ---
 
-## 2. Eksplorasi Fitur Beranda
-Setelah login, pengguna memiliki beberapa pilihan navigasi dari halaman Beranda:
-- **Promo & Banner**: Melihat *carousel* promosi terbaru.
-- **LNR Asisten AI**: Mengakses fitur chatbot (didukung Groq API) untuk bertanya seputar menu atau cara pemesanan.
-- **KopiPedia**: Mengakses artikel blog terkait kopi.
-- **Tutorial & FAQ**: Menonton video tutorial atau membaca bantuan untuk pengguna baru.
-- **Cari Outlet**: Menemukan lokasi outlet LNR di Google Maps.
+## 2. Alur Staf Outlet (Kasir & Barista)
+
+1. **Login Keamanan Tinggi**: Staf membuka `/admin/login` dan harus memasukkan **PIN Login Dashboard Outlet** yang spesifik hanya untuk cabang mereka.
+2. **Manajemen Antrean**: 
+   - Melihat pesanan online yang masuk secara *real-time*.
+   - Mengubah status pesanan dari "Pending" menjadi "Cooking" hingga "Completed".
+3. **Mode Kasir Offline**: Staf menggunakan tab *Kasir* untuk menginput pesanan manual (Walk-in), di mana sistem akan otomatis mencetak/mengeluarkan **Nomor Antrean Harian**.
+4. **Validasi QR Website**: Staf dapat mengakses halaman "QR Website" untuk ditunjukkan kepada pelanggan di toko.
 
 ---
 
-## 3. Proses Pemesanan (Pusat Transaksi)
-1. **Pilih Tipe Pesanan**: Di Beranda, pengguna memilih antara:
-   - **Pick Up**: Ambil di kedai.
-   - **Delivery**: Diantar ke rumah.
-   - Atau **Scan QR Meja**: Jika pengguna sedang berada di kedai (Dine-in).
-2. **Pilih Cabang (Lokasi)**: Pengguna memilih dari daftar outlet (cabang) yang sedang aktif.
-3. **Jelajahi Menu**: Pengguna diarahkan ke Halaman Menu.
-   - Menu dikelompokkan berdasarkan kategori (Coffee, Non-Coffee, Snack).
-   - Pengguna dapat mencari nama produk.
-4. **Kustomisasi Item (Add-on)**: Saat memilih kopi, muncul pop-up kustomisasi (ukuran cup, level gula, es, sirup ekstra). Setelah disesuaikan, item masuk ke **Keranjang (Cart)**.
+## 3. Alur Master Admin (Pemilik Bisnis)
+
+1. **Login Master**: Menggunakan PIN Master khusus (`/master/login`).
+2. **Pantau Keseluruhan Cabang**: Mengelola (tambah, edit, tutup) cabang di seluruh sistem, serta mengganti PIN akses setiap cabang.
+3. **Menu Global**: Mengedit harga atau nama kopi dari satu tempat yang akan langsung ter-update di seluruh cabang.
+4. **Laporan Keuangan**: Melihat rekap pendapatan harian/bulanan dengan grafik yang jelas, serta mengunduh rincian penjualan.
+5. **Pemantauan Sesi Aktif**: Master Admin bisa melihat siapa saja yang sedang membuka dashboard, lengkap dengan alamat IP dan lokasinya, dan berhak menekan **Force Logout** untuk memutus akses staf dari jauh secara paksa.
 
 ---
 
-## 4. Checkout & Pembayaran
-1. **Review Keranjang**: Pengguna memeriksa pesanan dan total harga.
-2. **Masukkan Detail Pengiriman / Meja**: 
-   - *Delivery*: Memasukkan alamat lengkap dan catatan.
-   - *Dine-in*: Nomor meja otomatis terisi atau diisi manual.
-3. **Pilih Metode Pembayaran**:
-   - **Tripay**: *Payment Gateway* untuk bayar via QRIS, Virtual Account, atau E-Wallet.
-   - **Bayar Tunai / Kasir**: Bayar langsung di tempat (Manual).
-   - **Gunakan LNR Point**: Menukar poin loyalitas jika mencukupi.
-4. **Gunakan Voucher (Opsional)**: Memasukkan kode promo untuk memotong harga.
-5. **Konfirmasi Pesanan**: Sistem mengirim data ke tabel `orders` dan men-generate ID pembayaran (jika via Tripay).
+## 4. Alur Developer (IT & Pengembang)
 
----
-
-## 5. Lacak Pesanan (Real-Time)
-1. **Halaman Status Pesanan**: Setelah checkout, pengguna diarahkan ke halaman detail pesanan.
-2. **Real-time Updates**: Status berubah secara *real-time* (Pending ➔ Diproses Barista ➔ Siap Diambil / Diantar ➔ Selesai) berkat fitur *Supabase Realtime subscriptions*.
-3. **Notifikasi Mengambang**: Jika pengguna kembali ke Beranda, terdapat pop-up status pesanan aktif di bagian bawah layar agar mereka dapat selalu melacaknya.
-
----
-
-## 6. Selesai & Review
-1. **Terima Pesanan**: Ketika status pesanan selesai, pengguna mendapatkan notifikasi (jika diaktifkan) dan LNR Points ditambahkan secara otomatis.
-2. **Beri Ulasan**: Pengguna memberikan penilaian (Bintang 1-5) dan ulasan teks tentang pesanan tersebut (tersimpan di tabel `reviews`). Ulasan ini nantinya dapat dilihat oleh Admin pada *Review Board*.
+1. **Akses Tersembunyi**: Developer masuk ke rute khusus rahasia (`/admin/developer`) menggunakan **Developer PIN**.
+2. **Pembersihan Database**: Terdapat fitur *"Clear Logs"* dan pembersihan data _orphaned_ untuk menjaga performa server (database Supabase) agar tidak lelet atau penuh.
+3. **Monitor Aktivitas Ekstrem**: Melihat rincian teknis _session_ dan _system health_ dari keseluruhan platform web LNR Coffee.

@@ -9,8 +9,10 @@ import {
   useRouterState,
   useNavigate
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { SplashScreen } from "@/components/SplashScreen";
+import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -135,13 +137,87 @@ function AuthGuard({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function MaintenanceGuard({ children }: { children: ReactNode }) {
+  const routerState = useRouterState();
+  const pathname = routerState.location.pathname;
+  const [isMaintenance, setIsMaintenance] = useState(false);
+  const [maintenanceMsg, setMaintenanceMsg] = useState("Sistem sedang dalam peningkatan untuk memberikan layanan ngopi terbaik.");
+
+  useEffect(() => {
+    // Abaikan maintenance mode untuk halaman admin agar tetap bisa diakses dan mematikannya
+    if (pathname.startsWith("/admin") || pathname.startsWith("/master") || pathname === "/login") return;
+
+    const fetchMaintenanceStatus = async () => {
+      const { data } = await supabase
+        .from("system_settings")
+        .select("value")
+        .eq("key", "maintenance_mode")
+        .single();
+      
+      if (data && data.value) {
+        setIsMaintenance(data.value.active);
+        if (data.value.message) setMaintenanceMsg(data.value.message);
+      }
+    };
+
+    fetchMaintenanceStatus();
+
+    // Subscribe ke realtime updates
+    const channel = supabase
+      .channel('maintenance_channel')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'system_settings', filter: "key=eq.maintenance_mode" }, (payload) => {
+        const value = payload.new.value as any;
+        if (value) {
+          setIsMaintenance(value.active);
+          if (value.message) setMaintenanceMsg(value.message);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [pathname]);
+
+  if (isMaintenance && !pathname.startsWith("/admin") && !pathname.startsWith("/master") && pathname !== "/login") {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-[#0a0a0a] px-4 text-white">
+        <div className="max-w-md text-center p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+          <div className="mx-auto w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="size-8 text-accent animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold mb-3 font-display">LNR Sedang Diperbaiki</h1>
+          <p className="text-sm text-gray-400 leading-relaxed mb-6">
+            {maintenanceMsg}
+          </p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-semibold">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            Mohon tunggu sebentar...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthGuard>
-        <Outlet />
-      </AuthGuard>
+      <SplashScreen />
+      <MaintenanceGuard>
+        <AuthGuard>
+          <Outlet />
+        </AuthGuard>
+      </MaintenanceGuard>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );

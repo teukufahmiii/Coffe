@@ -48,7 +48,7 @@ export function DashboardPesananAktif({ branch, type }: { branch: string, type: 
       .order("created_at", { ascending: true });
     
     if (error) toast.error(error.message);
-    else setOrders(data as Order[]);
+    else setOrders(data as unknown as Order[]);
   };
 
   useEffect(() => {
@@ -153,7 +153,7 @@ export function DashboardPesananAktif({ branch, type }: { branch: string, type: 
           {orders.map((o, index) => {
             const s = STATUS_STYLES[o.status];
             const isDelivery = o.table_number === 99;
-            const orderNumber = index + 1;
+            const orderNumber = o.queue_number || o.id.split("-")[0];
             
             let displayNote = o.note;
             let displayCustomerName = o.customer_name;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Users, Star, Pencil, X, Save } from "lucide-react";
+import { Loader2, Users, Star, Pencil, X, Save, Eye, EyeOff } from "lucide-react";
 
 function UserManager() {
   const [users, setUsers] = useState<any[]>([]);
@@ -113,3 +113,5 @@ function UserManager() {
     </div>
   );
 }
+
+export { UserManager };

@@ -11,7 +11,7 @@ export function useOrders() {
 
   useEffect(() => {
     async function fetchOrders() {
-      if (!user?.name) {
+      if (!user?.phone) {
         setOrders([]);
         setIsLoading(false);
         return;
@@ -26,7 +26,7 @@ export function useOrders() {
             order_items (*, menu_items(image_url, category)),
             branches (name)
           `)
-          .eq('customer_name', user.name)
+          .eq('customer_phone', user.phone)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -42,14 +42,14 @@ export function useOrders() {
     fetchOrders();
 
     // Set up real-time subscription for updates
-    if (user?.name) {
+    if (user?.phone) {
       const subscription = supabase
         .channel('public:orders')
         .on('postgres_changes', { 
           event: '*', 
           schema: 'public', 
           table: 'orders',
-          filter: `customer_name=eq.${user.name}`
+          filter: `customer_phone=eq.${user.phone}`
         }, () => {
           fetchOrders();
         })
@@ -59,7 +59,7 @@ export function useOrders() {
         supabase.removeChannel(subscription);
       };
     }
-  }, [user?.name]);
+  }, [user?.phone]);
 
   return { orders, isLoading, error };
 }

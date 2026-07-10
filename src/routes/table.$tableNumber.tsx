@@ -92,9 +92,27 @@ function TableOrderPage() {
     if (totals.count === 0) return;
     setSubmitting(true);
     try {
+      // Dapatkan data user dari localStorage jika ada
+      const storedUser = localStorage.getItem("lnr_user");
+      let customerName = null;
+      let customerPhone = null;
+      
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        customerName = parsed.name;
+        customerPhone = parsed.phone;
+      }
+
       const { data: order, error } = await supabase
         .from("orders")
-        .insert({ table_number: n, total: totals.total, note: note || null, status: "pending" })
+        .insert({ 
+          table_number: n, 
+          total: totals.total, 
+          note: note || null, 
+          status: "pending",
+          customer_name: customerName,
+          customer_phone: customerPhone
+        })
         .select()
         .single();
       if (error) throw error;

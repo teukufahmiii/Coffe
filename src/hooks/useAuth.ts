@@ -164,5 +164,24 @@ export function useAuth() {
     return { success: true, message: "PIN berhasil diubah" };
   };
 
-  return { user, loading, login, register, checkPhone, logout, updateProfile, changePin };
+  const deleteAccount = async () => {
+    if (!user) return false;
+    
+    // Hapus data dari tabel profiles
+    const { error } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("phone", user.phone);
+      
+    if (error) {
+      console.error("Gagal menghapus akun:", error);
+      toast.error("Gagal menghapus akun: " + error.message);
+      return false;
+    }
+    
+    logout();
+    return true;
+  };
+
+  return { user, loading, login, register, checkPhone, logout, updateProfile, changePin, deleteAccount };
 }

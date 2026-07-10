@@ -11,7 +11,7 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const navigate = useNavigate();
-  const { user, logout, updateProfile, changePin } = useAuth();
+  const { user, logout, updateProfile, changePin, deleteAccount } = useAuth();
   
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState("");
@@ -290,10 +290,13 @@ function ProfilePage() {
               </button>
 
               <button 
-                onClick={() => {
-                  if (confirm('Apakah Anda yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan.')) {
-                    toast.success('Permintaan hapus akun terkirim.');
-                    handleLogout();
+                onClick={async () => {
+                  if (confirm('Apakah Anda yakin ingin menghapus akun secara permanen? Tindakan ini tidak dapat dibatalkan.')) {
+                    const success = await deleteAccount();
+                    if (success) {
+                      toast.success('Akun Anda telah berhasil dihapus.');
+                      navigate({ to: "/login" });
+                    }
                   }
                 }}
                 className="flex items-center justify-between p-4 rounded-2xl bg-red-50/50 border border-red-200 hover:bg-red-50 hover:border-red-300 hover:shadow-lg hover:shadow-red-500/10 hover:-translate-y-0.5 transition-all duration-300 group w-full mt-2"

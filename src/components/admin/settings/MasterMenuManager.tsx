@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, X, Upload } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, X, Upload, Save } from "lucide-react";
 import { formatRupiah } from "@/lib/format";
 import { MenuItem, CATS, PRESET_OPTIONS } from "@/types/menu";
 
@@ -353,3 +353,13 @@ function MasterMenuManager() {
   );
 }
 
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-2 text-sm font-semibold">{label}</div>
+      {children}
+    </div>
+  );
+}
+
+export { MasterMenuManager };

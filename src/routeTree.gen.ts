@@ -38,9 +38,14 @@ import { Route as ReceiptOrderIdRouteImport } from './routes/receipt.$orderId'
 import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
 import { Route as KopipediaArticleIdRouteImport } from './routes/kopipedia.$articleId'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AuthenticatedMasterRouteImport } from './routes/_authenticated/master'
+import { Route as AuthenticatedMasterIndexRouteImport } from './routes/_authenticated/master/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedMasterSettingsRouteImport } from './routes/_authenticated/master/settings'
+import { Route as AuthenticatedMasterOutletsRouteImport } from './routes/_authenticated/master/outlets'
+import { Route as AuthenticatedMasterLoginRouteImport } from './routes/_authenticated/master/login'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
+import { Route as AuthenticatedAdminDeveloperRouteImport } from './routes/_authenticated/admin.developer'
 
 const VouchersRoute = VouchersRouteImport.update({
   id: '/vouchers',
@@ -186,21 +191,50 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedMasterRoute = AuthenticatedMasterRouteImport.update({
+  id: '/master',
+  path: '/master',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMasterIndexRoute =
+  AuthenticatedMasterIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedMasterRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAdminSettingsRoute =
-  AuthenticatedAdminSettingsRouteImport.update({
-    id: '/admin/settings',
-    path: '/admin/settings',
-    getParentRoute: () => AuthenticatedRouteRoute,
+const AuthenticatedMasterSettingsRoute =
+  AuthenticatedMasterSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedMasterRoute,
+  } as any)
+const AuthenticatedMasterOutletsRoute =
+  AuthenticatedMasterOutletsRouteImport.update({
+    id: '/outlets',
+    path: '/outlets',
+    getParentRoute: () => AuthenticatedMasterRoute,
+  } as any)
+const AuthenticatedMasterLoginRoute =
+  AuthenticatedMasterLoginRouteImport.update({
+    id: '/login',
+    path: '/login',
+    getParentRoute: () => AuthenticatedMasterRoute,
   } as any)
 const AuthenticatedAdminFinanceRoute =
   AuthenticatedAdminFinanceRouteImport.update({
     id: '/admin/finance',
     path: '/admin/finance',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminDeveloperRoute =
+  AuthenticatedAdminDeveloperRouteImport.update({
+    id: '/admin/developer',
+    path: '/admin/developer',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -228,14 +262,19 @@ export interface FileRoutesByFullPath {
   '/tutorial': typeof TutorialRoute
   '/voucher': typeof VoucherRoute
   '/vouchers': typeof VouchersRoute
+  '/master': typeof AuthenticatedMasterRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/kopipedia/$articleId': typeof KopipediaArticleIdRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
+  '/admin/developer': typeof AuthenticatedAdminDeveloperRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/master/login': typeof AuthenticatedMasterLoginRoute
+  '/master/outlets': typeof AuthenticatedMasterOutletsRoute
+  '/master/settings': typeof AuthenticatedMasterSettingsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/master/': typeof AuthenticatedMasterIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -266,9 +305,13 @@ export interface FileRoutesByTo {
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
+  '/admin/developer': typeof AuthenticatedAdminDeveloperRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/master/login': typeof AuthenticatedMasterLoginRoute
+  '/master/outlets': typeof AuthenticatedMasterOutletsRoute
+  '/master/settings': typeof AuthenticatedMasterSettingsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/master': typeof AuthenticatedMasterIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -296,14 +339,19 @@ export interface FileRoutesById {
   '/tutorial': typeof TutorialRoute
   '/voucher': typeof VoucherRoute
   '/vouchers': typeof VouchersRoute
+  '/_authenticated/master': typeof AuthenticatedMasterRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/kopipedia/$articleId': typeof KopipediaArticleIdRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/receipt/$orderId': typeof ReceiptOrderIdRoute
   '/table/$tableNumber': typeof TableTableNumberRoute
+  '/_authenticated/admin/developer': typeof AuthenticatedAdminDeveloperRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
-  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/master/login': typeof AuthenticatedMasterLoginRoute
+  '/_authenticated/master/outlets': typeof AuthenticatedMasterOutletsRoute
+  '/_authenticated/master/settings': typeof AuthenticatedMasterSettingsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/master/': typeof AuthenticatedMasterIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -331,14 +379,19 @@ export interface FileRouteTypes {
     | '/tutorial'
     | '/voucher'
     | '/vouchers'
+    | '/master'
     | '/admin/login'
     | '/kopipedia/$articleId'
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
+    | '/admin/developer'
     | '/admin/finance'
-    | '/admin/settings'
+    | '/master/login'
+    | '/master/outlets'
+    | '/master/settings'
     | '/admin/'
+    | '/master/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -369,9 +422,13 @@ export interface FileRouteTypes {
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
+    | '/admin/developer'
     | '/admin/finance'
-    | '/admin/settings'
+    | '/master/login'
+    | '/master/outlets'
+    | '/master/settings'
     | '/admin'
+    | '/master'
   id:
     | '__root__'
     | '/'
@@ -398,14 +455,19 @@ export interface FileRouteTypes {
     | '/tutorial'
     | '/voucher'
     | '/vouchers'
+    | '/_authenticated/master'
     | '/admin/login'
     | '/kopipedia/$articleId'
     | '/order/$orderId'
     | '/receipt/$orderId'
     | '/table/$tableNumber'
+    | '/_authenticated/admin/developer'
     | '/_authenticated/admin/finance'
-    | '/_authenticated/admin/settings'
+    | '/_authenticated/master/login'
+    | '/_authenticated/master/outlets'
+    | '/_authenticated/master/settings'
     | '/_authenticated/admin/'
+    | '/_authenticated/master/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -644,6 +706,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/master': {
+      id: '/_authenticated/master'
+      path: '/master'
+      fullPath: '/master'
+      preLoaderRoute: typeof AuthenticatedMasterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/master/': {
+      id: '/_authenticated/master/'
+      path: '/'
+      fullPath: '/master/'
+      preLoaderRoute: typeof AuthenticatedMasterIndexRouteImport
+      parentRoute: typeof AuthenticatedMasterRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/admin'
@@ -651,12 +727,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/settings': {
-      id: '/_authenticated/admin/settings'
-      path: '/admin/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_authenticated/master/settings': {
+      id: '/_authenticated/master/settings'
+      path: '/settings'
+      fullPath: '/master/settings'
+      preLoaderRoute: typeof AuthenticatedMasterSettingsRouteImport
+      parentRoute: typeof AuthenticatedMasterRoute
+    }
+    '/_authenticated/master/outlets': {
+      id: '/_authenticated/master/outlets'
+      path: '/outlets'
+      fullPath: '/master/outlets'
+      preLoaderRoute: typeof AuthenticatedMasterOutletsRouteImport
+      parentRoute: typeof AuthenticatedMasterRoute
+    }
+    '/_authenticated/master/login': {
+      id: '/_authenticated/master/login'
+      path: '/login'
+      fullPath: '/master/login'
+      preLoaderRoute: typeof AuthenticatedMasterLoginRouteImport
+      parentRoute: typeof AuthenticatedMasterRoute
     }
     '/_authenticated/admin/finance': {
       id: '/_authenticated/admin/finance'
@@ -665,18 +755,44 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminFinanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/developer': {
+      id: '/_authenticated/admin/developer'
+      path: '/admin/developer'
+      fullPath: '/admin/developer'
+      preLoaderRoute: typeof AuthenticatedAdminDeveloperRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedMasterRouteChildren {
+  AuthenticatedMasterLoginRoute: typeof AuthenticatedMasterLoginRoute
+  AuthenticatedMasterOutletsRoute: typeof AuthenticatedMasterOutletsRoute
+  AuthenticatedMasterSettingsRoute: typeof AuthenticatedMasterSettingsRoute
+  AuthenticatedMasterIndexRoute: typeof AuthenticatedMasterIndexRoute
+}
+
+const AuthenticatedMasterRouteChildren: AuthenticatedMasterRouteChildren = {
+  AuthenticatedMasterLoginRoute: AuthenticatedMasterLoginRoute,
+  AuthenticatedMasterOutletsRoute: AuthenticatedMasterOutletsRoute,
+  AuthenticatedMasterSettingsRoute: AuthenticatedMasterSettingsRoute,
+  AuthenticatedMasterIndexRoute: AuthenticatedMasterIndexRoute,
+}
+
+const AuthenticatedMasterRouteWithChildren =
+  AuthenticatedMasterRoute._addFileChildren(AuthenticatedMasterRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMasterRoute: typeof AuthenticatedMasterRouteWithChildren
+  AuthenticatedAdminDeveloperRoute: typeof AuthenticatedAdminDeveloperRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
-  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMasterRoute: AuthenticatedMasterRouteWithChildren,
+  AuthenticatedAdminDeveloperRoute: AuthenticatedAdminDeveloperRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
-  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 

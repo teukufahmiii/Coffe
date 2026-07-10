@@ -16,33 +16,30 @@ Folder `src/` berisi seluruh kode sumber (Source Code) antarmuka pengguna (User 
 
 ### 📁 `/src/components`
 Berisi komponen React UI yang dapat digunakan kembali *(reusable components)*.
-- `/admin/`: Komponen khusus untuk Dashboard Admin (seperti `ReviewBoard.tsx`, `MenuManager.tsx`, `DashboardPesananAktif.tsx`).
+- `/admin/`: Komponen khusus untuk Dashboard Admin (seperti `ReviewBoard.tsx`, `MenuManager.tsx`, `LoginManager.tsx` dan `OutletManager.tsx`).
 - `/home/`: Komponen khusus untuk halaman beranda pengguna (seperti `BerandaHero.tsx`, `BerandaLayanan.tsx`).
-- `/ui/`: Komponen UI dasar *(Base UI)* seperti tombol, input teks, modal, dsb.
+- `/ui/`: Komponen UI dasar *(Base UI)*.
+- `PinGuard.tsx`: Komponen khusus pelindung keamanan (Otentikasi PIN & Verifikasi Sesi Login) untuk memblokir akses yang tidak sah ke dalam Dashboard.
 
 ### 📁 `/src/routes`
 Pusat dari aplikasi ini karena proyek menggunakan **TanStack Router** dengan sistem *file-based routing*. Setiap file di sini secara otomatis akan menjadi sebuah halaman (URL).
 - `__root.tsx`: File root (induk) dari seluruh layout aplikasi.
 - `index.tsx`: Halaman Beranda (Landing Page).
-- `_authenticated/`: Direktori dengan proteksi (pengguna harus login).
-  - `admin.index.tsx` & `admin.settings.tsx`: Halaman Dashboard & Pengaturan Master Admin.
-  - `profile.tsx`, `orders.tsx`, `checkout.tsx`: Halaman khusus untuk pengguna biasa yang sudah login.
+- `_authenticated/`: Direktori dengan proteksi PIN dan *Auth*.
+  - `admin.*/`: Rute untuk Dashboard Outlet / Kasir (`admin.index.tsx`, `admin.qr.tsx`).
+  - `master.*/`: Rute untuk Dashboard Master Admin / Pemilik (`master.index.tsx`, `master.settings.tsx`).
+  - `admin.developer.tsx`: Rute super rahasia untuk Developer / IT (mengakses *System Logs* dan *Database Tools*).
 - `menu.tsx`: Halaman daftar menu LNR Coffee.
-- `ai-assistant.tsx`: Halaman interaksi chatbot dengan AI Groq.
+- `select-location.tsx`: Halaman pemilihan outlet terdekat berdasarkan jarak (GPS).
 
 ### 📁 `/src/hooks`
 Kumpulan *Custom React Hooks* untuk logika aplikasi.
-- `useAuth.tsx`: Mengelola logika *authentication* (Login, Logout, sesi pengguna).
+- `useAuth.tsx`: Mengelola logika *authentication* pelanggan (Nomor WhatsApp).
+- `useNearestBranch.ts`: Algoritma perhitungan jarak (Haversine formula) untuk mencari cabang terdekat.
 
 ### 📁 `/src/types`
 Definisi tipe data TypeScript untuk struktur data yang sering dipakai.
-- `menu.ts`: Struktur untuk *MenuItem*, *Category*, dan *Options*.
-- `order.ts`: Struktur untuk objek pesanan.
-
-### 📁 `/src/lib`
-Kumpulan fungsi utilitas *(Helper functions)*.
-- `format.ts`: Fungsi format Rupiah, format tanggal, dll.
-- `utils.ts`: Fungsi penggabung class Tailwind (misal: `cn`).
+- `branch.ts`: Menyimpan antarmuka tipe-tipe tabel database yang ditarik dari Supabase.
 
 ---
 
@@ -50,11 +47,11 @@ Kumpulan fungsi utilitas *(Helper functions)*.
 Karena aplikasi ini *serverless*, backend mengandalkan ekosistem Supabase.
 
 ### 📁 `/supabase/migrations`
-Berisi skema database PostgreSQL.
-- `00_skema_lengkap_database_lnr.sql`: File krusial yang menyimpan struktur seluruh tabel *(Tables)*, aturan keamanan tingkat baris *(Row Level Security / RLS)*, serta fungsi trigger di database.
+Berisi 10 file skema database PostgreSQL yang rapi dan dikelompokkan secara abjad:
+- `a_tabel_menu_items.sql` hingga `i_tabel_login_sessions.sql`: Skema per-tabel lengkap dengan relasi (Foreign Keys).
+- `j_semua_kebijakan_keamanan.sql`: Menyimpan aturan keamanan tingkat baris *(Row Level Security / RLS)* untuk seluruh tabel, demi mengamankan data lintas outlet.
 
 ### 📁 `/supabase/functions`
 Berisi **Supabase Edge Functions** (fungsi serverless berbasis Deno & TypeScript) untuk memproses logika backend yang memerlukan kerahasiaan API Key.
 - `/create-tripay-transaction/`: Menghubungi API Tripay untuk membuat transaksi pembayaran dan men-generate *Virtual Account* atau QRIS.
 - `/get-tripay-channels/`: Mengambil daftar metode pembayaran yang didukung oleh Tripay secara real-time.
-- *(Rencana / Segera)* `/lnr-ai-assistant/`: Edge Function yang akan memanggil API Groq secara aman untuk chatbot AI.

@@ -21,11 +21,28 @@ import {
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toast } from "sonner";
+import { Suspense } from "react";
+import { Loader2 } from "lucide-react";
+import { PinGuard } from "@/components/PinGuard";
 
 export const Route = createFileRoute("/_authenticated/admin/finance")({
   head: () => ({ meta: [{ title: "Laporan Keuangan — LNR Admin" }, { name: "robots", content: "noindex" }] }),
-  component: FinanceDashboard,
+  component: AdminFinance,
 });
+
+function AdminFinance() {
+  return (
+    <PinGuard title="Akses Laporan Keuangan" pinType="finance">
+      <Suspense fallback={
+        <div className="flex h-[50vh] items-center justify-center">
+          <Loader2 className="size-8 animate-spin text-primary" />
+        </div>
+      }>
+        <FinanceDashboard />
+      </Suspense>
+    </PinGuard>
+  );
+}
 
 function FinanceDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -344,14 +361,14 @@ function FinanceDashboard() {
                           {format(parseISO(order.created_at), "dd MMM yyyy HH:mm", { locale: id })}
                         </td>
                         <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
-                          {order.id.slice(0, 8)}...
+                          #{order.queue_number || order.id.slice(0, 8)}
                         </td>
                         <td className="px-6 py-4 capitalize">
                           {order.branch}
                         </td>
                         <td className="px-6 py-4">
                           <span className="bg-secondary px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider">
-                            {order.order_type || "N/A"}
+                            {order.order_source === 'pos' ? 'kasir' : order.order_type || "N/A"}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right font-bold text-green-700">

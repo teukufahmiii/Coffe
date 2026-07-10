@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { QrCode, Printer } from "lucide-react";
+import { QrCode, Printer, Coffee } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 
 function QrManager() {
@@ -60,3 +60,5 @@ function QrManager() {
   );
 }
 
+
+export { QrManager };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Globe, Image as ImageIcon, Save, Trash2 } from "lucide-react";
+import { Loader2, Globe, Image as ImageIcon, Save, Trash2, Upload } from "lucide-react";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -138,3 +138,5 @@ type Voucher = {
   created_at: string;
 };
 
+
+export { WebsiteManager };

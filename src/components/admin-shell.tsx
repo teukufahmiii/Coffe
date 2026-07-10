@@ -1,13 +1,14 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Coffee, LayoutDashboard, QrCode, LogOut, Package, Store, BellRing, Ticket, ShieldCheck, BarChart3 } from "lucide-react";
+import { Coffee, LayoutDashboard, QrCode, LogOut, Package, Store, BellRing, Ticket, ShieldCheck, BarChart3, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
 
 const LINKS = [
-  { to: "/admin/settings", label: "Master Admin", icon: ShieldCheck },
+  { to: "/master", label: "Master Admin", icon: ShieldCheck },
   { to: "/admin", label: "Outlet Dashboard", icon: Store },
   { to: "/admin/finance", label: "Laporan Keuangan", icon: BarChart3 },
+  { to: "/admin/developer", label: "Developer Dashboard", icon: Terminal },
 ] as const;
 
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -30,7 +31,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </Link>
         <nav className="flex-1 space-y-1">
           {LINKS.map((l) => {
-            const active = pathname === l.to;
+            const active = pathname.startsWith(l.to) && (l.to === '/admin' ? pathname === '/admin' : true);
             return (
               <Link
                 key={l.to}
@@ -60,7 +61,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       </header>
       <nav className="sticky top-[57px] z-20 flex gap-1 overflow-x-auto border-b border-border bg-background px-4 py-2 md:hidden">
         {LINKS.map((l) => {
-          const active = pathname === l.to;
+          const active = pathname.startsWith(l.to) && (l.to === '/admin' ? pathname === '/admin' : true);
           return (
             <Link key={l.to} to={l.to} className={`flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${active ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
               <l.icon className="size-3.5" /> {l.label}

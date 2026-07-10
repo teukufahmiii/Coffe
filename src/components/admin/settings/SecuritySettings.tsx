@@ -114,3 +114,5 @@ function SecuritySettings() {
   );
 }
 
+
+export { SecuritySettings };

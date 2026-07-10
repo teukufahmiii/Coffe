@@ -88,8 +88,8 @@ function EReceiptPage() {
                  <span>{dateStr}</span>
                </div>
                <div className="flex justify-between">
-                 <span>No. Pesanan</span>
-                 <span>{order.id.slice(0,8).toUpperCase()}</span>
+                 <span>No. Antrean / Pesanan</span>
+                 <span>#{order.queue_number || order.id.slice(0,8).toUpperCase()}</span>
                </div>
                <div className="flex justify-between">
                  <span>Metode</span>

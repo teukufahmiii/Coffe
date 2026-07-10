@@ -246,11 +246,11 @@ export function OutletFinanceBoard({ branch }: { branch: string }) {
                         {format(parseISO(order.created_at), "dd MMM yyyy HH:mm", { locale: id })}
                       </td>
                       <td className="px-5 py-3 font-mono text-xs text-muted-foreground">
-                        {order.id.slice(0, 8)}...
+                        #{order.queue_number || order.id.slice(0, 8)}
                       </td>
                       <td className="px-5 py-3">
                         <span className="bg-secondary px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                          {order.order_type || "N/A"}
+                          {order.order_source === 'pos' ? 'kasir' : order.order_type || "N/A"}
                         </span>
                       </td>
                       <td className="px-5 py-3 text-right font-bold text-green-700">

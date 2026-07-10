@@ -1,13 +1,12 @@
 # Entity Relationship Diagram (ERD) LNR Coffee
 
-Berikut adalah representasi visual ERD dari arsitektur database Supabase LNR Coffee, direpresentasikan dalam format **Mermaid.js** agar dapat dirender secara visual pada penampil Markdown yang mendukung (seperti GitHub).
+Berikut adalah representasi visual ERD dari arsitektur database Supabase LNR Coffee, yang telah diperbarui dengan fitur-fitur terbaru (Aktivitas Login, Keamanan PIN, dan Dashboard Terpisah).
 
 ## Diagram Skema (Mermaid)
 
 ```mermaid
 erDiagram
-    PROFILES ||--o{ ORDERS : "places"
-    PROFILES ||--o{ POINT_TRANSACTIONS : "has"
+    PROFILES ||--o{ ORDERS : "places (by customer_phone)"
     PROFILES ||--o{ REVIEWS : "writes"
     
     BRANCHES ||--o{ ORDERS : "receives"
@@ -19,12 +18,12 @@ erDiagram
     ORDERS ||--o{ REVIEWS : "linked_to"
     
     PROFILES {
-        uuid id PK "auth.users ID"
-        text name
+        uuid id PK
         text phone "UNIQUE"
-        text pin "For Auth"
-        text role "customer / admin"
-        integer points "Default: 0"
+        text name
+        text pin
+        text avatar_url
+        integer points
         timestamp created_at
     }
 
@@ -33,32 +32,40 @@ erDiagram
         text name
         text slug "UNIQUE"
         text address
-        boolean is_active "Default: true"
+        float latitude
+        float longitude
+        text phone
+        text access_pin "Dashboard PIN"
+        boolean is_active
+        integer avg_prep_time_minutes
     }
 
     MENU_ITEMS {
         uuid id PK
         text name
-        text category "coffee / non-coffee dll"
+        text category "coffee / non-coffee / snack"
         integer price
         text description
         text image_url
-        text[] available_branches "Array of branch slugs"
-        jsonb options "Add-ons, cup size dll"
+        boolean available
     }
 
     ORDERS {
         uuid id PK
-        uuid user_id FK "Refs profiles(id)"
-        text branch_slug FK "Refs branches(slug)"
-        text type "pickup / delivery / dine-in"
-        text status "pending / processing / ready / completed"
-        integer total "Total Price"
-        text payment_method "tripay / kasir / point"
-        text payment_status "unpaid / paid / failed"
-        text checkout_url "Tripay URL"
-        text table_number "For Dine-in"
-        text delivery_address "For Delivery"
+        integer table_number
+        text status "pending / cooking / served / completed dll"
+        numeric total
+        text note
+        uuid branch_id FK "Refs branches(id)"
+        text order_type "dine-in / pickup / delivery / kasir"
+        integer queue_number "Daily queue"
+        text customer_name
+        text customer_phone
+        text customer_address
+        float customer_lat
+        float customer_lng
+        text driver_type "gosend / grabexpress"
+        text payment_channel
         timestamp created_at
     }
 
@@ -66,60 +73,71 @@ erDiagram
         uuid id PK
         uuid order_id FK "Refs orders(id)"
         uuid menu_item_id FK "Refs menu_items(id)"
-        integer quantity
-        integer price_at_time
-        jsonb options_selected
-        text notes
+        text name
+        numeric price
+        integer qty
+        text note
     }
 
     REVIEWS {
         uuid id PK
-        uuid user_id FK "Refs profiles(id)"
-        uuid order_id FK "Refs orders(id)"
-        text branch_slug FK "Refs branches(slug)"
+        uuid order_id FK "Refs orders(id) UNIQUE"
+        uuid branch_id FK "Refs branches(id)"
         integer rating "1 to 5"
+        text[] tags
         text comment
+        jsonb product_ratings
         timestamp created_at
     }
 
     VOUCHERS {
         uuid id PK
         text code "UNIQUE"
+        text title
         text discount_type "percentage / fixed"
-        integer discount_value
-        integer min_purchase
+        numeric discount_amount
+        numeric min_order_amount
         boolean is_active
+        integer points_required
     }
 
-    POINT_TRANSACTIONS {
+    MASTER_ADMIN_SETTINGS {
+        integer id PK
+        text pin "Master PIN"
+        text developer_pin "Dev PIN"
+        timestamp updated_at
+    }
+
+    LOGIN_SESSIONS {
         uuid id PK
-        uuid user_id FK "Refs profiles(id)"
-        integer amount "+ or -"
-        text type "earned / redeemed"
-        text description
-        timestamp created_at
+        text user_type "admin / developer / master"
+        text identifier
+        text ip_address
+        text location
+        text user_agent
+        boolean is_active
+        timestamp login_time
+        timestamp last_active
     }
 ```
 
-## Rincian Relasi & Penjelasan
+## Rincian Perubahan & Penjelasan Relasi
 
-1. **PROFILES (One-to-Many) ke ORDERS, REVIEWS, POINT_TRANSACTIONS**
-   - Setiap pengguna (`profiles`) bisa memiliki banyak pesanan (`orders`), menulis banyak ulasan (`reviews`), dan memiliki banyak riwayat poin (`point_transactions`).
-   - `id` di `profiles` berelasi langsung dengan tabel bawaan `auth.users` di Supabase.
+1. **BRANCHES**
+   - Kolom `latitude` dan `longitude` digunakan untuk deteksi outlet terdekat secara otomatis.
+   - Kolom `access_pin` memisahkan akses PIN per outlet (Bukan lagi satu PIN Master untuk semua outlet).
 
-2. **BRANCHES (One-to-Many) ke ORDERS & REVIEWS**
-   - Satu cabang / outlet (`branches`) dapat menerima banyak pesanan dan mendapatkan banyak ulasan. Relasi dikaitkan menggunakan kolom `slug` agar URL mudah dibaca.
+2. **ORDERS**
+   - Kolom `order_type` sekarang mendukung `'kasir'` selain mode pelanggan (dine-in, pickup, delivery).
+   - Penambahan `queue_number` untuk mengatur antrean cetak struk (reset setiap hari).
+   - Detail pembeli langsung disimpan di orders (`customer_name`, `customer_phone`, dll) tanpa harus memaksa Foreign Key ke tabel profiles, memudahkan pesanan *Guest* / kasir offline.
 
-3. **ORDERS (One-to-Many) ke ORDER_ITEMS**
-   - Satu pesanan (`orders`) harus memiliki satu atau lebih rincian barang/minuman (`order_items`).
-   - Apabila baris di tabel `orders` dihapus, seluruh baris `order_items` miliknya juga akan terhapus (*CASCADE DELETE*).
+3. **ORDER_ITEMS & MENU_ITEMS**
+   - Rincian pesanan langsung menempel di `orders` dan mereferensikan `menu_items` jika ID-nya masih ada.
 
-4. **ORDERS (One-to-One / One-to-Many) ke REVIEWS**
-   - Satu pesanan dapat diberikan satu ulasan oleh pelanggan setelah status pesanan berubah menjadi `completed`.
+4. **MASTER_ADMIN_SETTINGS**
+   - Memisahkan otentikasi `pin` (Pemilik) dengan `developer_pin` (IT / Pengembang) agar akses sistem sangat aman.
 
-5. **MENU_ITEMS (One-to-Many) ke ORDER_ITEMS**
-   - Setiap minuman / menu (`menu_items`) dapat dibeli berkali-kali di berbagai transaksi pesanan (`order_items`).
-   - Harga saat dibeli (`price_at_time`) disimpan terpisah di `order_items` untuk mencegah perubahan riwayat harga jika harga asli di `menu_items` diubah oleh admin.
-
-6. **VOUCHERS (Independen)**
-   - Vouchers berdiri sendiri dan divalidasi pada saat proses checkout menggunakan kolom unik `code`.
+5. **LOGIN_SESSIONS**
+   - Tabel independen untuk melacak siapa saja yang sedang mengakses dashboard (Outlet, Master, atau Dev).
+   - Kolom `is_active` digunakan untuk melakukan fitur **Force Logout** dari jarak jauh (ditangani oleh realtime listener).
