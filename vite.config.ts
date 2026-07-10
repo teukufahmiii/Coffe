@@ -28,7 +28,7 @@ export default defineConfig({
         },
       },
     }),
-    nitro({ preset: "cloudflare-pages" }),
+    nitro({ preset: "cloudflare" }),
     viteReact(),
   ],
 });
