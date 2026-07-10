@@ -28,7 +28,7 @@ export default defineConfig({
         },
       },
     }),
-    nitro({ defaultPreset: "node-server" }),
+    nitro({ preset: "cloudflare-pages" }),
     viteReact(),
   ],
 });
