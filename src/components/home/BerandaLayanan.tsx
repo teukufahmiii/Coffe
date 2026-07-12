@@ -54,48 +54,27 @@ export function BerandaLayanan() {
         <div className="mt-3 md:mt-6 w-full flex flex-col gap-3">
           
           <div className="grid grid-cols-2 gap-3 md:gap-6 w-full">
-            {/* LNR AI ASSISTANT PREMIUM CARD */}
+            {/* LNR AI ASSISTANT CARD - FULL IMAGE DESIGN */}
             <Link 
               to="/ai-assistant"
-              className="group relative flex flex-col w-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500"
+              className="group relative flex items-center justify-center w-full h-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-[#593922] border-2 border-black"
             >
-              {/* Animated Gradient Border */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#5C4033] via-[#D4AF37] to-[#5C4033] opacity-50 group-hover:opacity-100 bg-[length:200%_auto] animate-[gradient-x_3s_linear_infinite] transition-opacity duration-500"></div>
-              
-              {/* Inner Dark Card */}
-              <div className="relative flex flex-col items-center justify-center h-full bg-gradient-to-br from-[#1C120C] to-[#3A2417] m-[2px] rounded-[calc(1.5rem-2px)] md:rounded-[calc(2rem-2px)] p-3 md:p-6 overflow-hidden">
-                
-                {/* Glowing decorative orbs */}
-                <div className="absolute -top-10 -left-10 w-24 h-24 bg-[#D4AF37]/20 rounded-full blur-2xl group-hover:bg-[#D4AF37]/40 transition-all duration-500"></div>
-                <div className="absolute -bottom-10 -right-10 w-24 h-24 bg-[#8B5A2B]/30 rounded-full blur-2xl group-hover:bg-[#8B5A2B]/50 transition-all duration-500"></div>
-
-                {/* Character Image (Top) */}
-                <div className="relative z-10 h-16 md:h-24 w-auto flex-shrink-0 animate-[ride_2s_ease-in-out_infinite] mb-2">
-                  <img 
-                    src="/images/lnr-asisten-ai.png" 
-                    alt="LNR Asisten AI" 
-                    className="h-full w-auto object-contain drop-shadow-[0_0_15px_rgba(212,175,55,0.4)] group-hover:scale-110 transition-transform duration-500" 
-                  />
-                </div>
-
-                {/* Text Content (Bottom) */}
-                <div className="relative z-10 flex flex-col items-center text-center gap-1">
-                  <h3 className="font-display font-black text-sm md:text-xl text-white leading-tight">
-                    LNR <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] to-[#FFF1C5]">Asisten</span>
-                  </h3>
-                </div>
-              </div>
+              <img 
+                src="/images/page-asisten-ai.jpg" 
+                alt="LNR Asisten AI" 
+                className="w-full h-full object-contain p-2 md:p-4 transition-transform duration-500" 
+              />
             </Link>
 
             {/* LNR REFERRAL CARD */}
             <Link 
               to="/referral"
-              className="group relative flex items-center justify-center w-full h-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-[#F9F6F0] border-2 border-transparent"
+              className="group relative flex items-center justify-center w-full h-full rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-[#F9F6F0] border-2 border-black"
             >
               <img 
                 src="/images/referral.png" 
                 alt="LNR Referral" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                className="w-full h-full object-contain p-2 md:p-4 transition-transform duration-500" 
               />
             </Link>
           </div>
