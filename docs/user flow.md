@@ -21,6 +21,10 @@ Dokumen ini mendeskripsikan bagaimana alur pengguna (User Flow) dalam menggunaka
 3. **Lacak Real-Time**: Status pesanan berubah seketika tanpa perlu *refresh* (Pending ➔ Dimasak ➔ Disajikan).
 4. **Ulasan**: Pelanggan dapat memberikan rating bintang setelah pesanan selesai.
 
+### D. Interaksi & Bantuan Pintar
+1. **LNR Asisten AI**: Pelanggan dapat membuka menu *LNR Asisten* di beranda untuk bertanya jawab dengan AI (diotaki oleh LLaMA 3.1).
+2. **Personalisasi AI**: AI akan mengenali nama pelanggan jika sudah *login*, dan memandu cara order, menjelaskan menu, atau memberikan nomor Customer Service. AI dibatasi agar tidak mengetahui rahasia dapur atau data transaksi konfidensial pengguna.
+
 ---
 
 ## 2. Alur Staf Outlet (Kasir & Barista)

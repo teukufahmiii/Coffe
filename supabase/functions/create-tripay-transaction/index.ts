@@ -37,8 +37,8 @@ serve(async (req) => {
       .eq("order_id", orderId);
 
     // Tripay Config (Sandbox keys from user env, fallback to provided keys)
-    const apiKey = Deno.env.get("TRIPAY_API_KEY") || "DEV-BYENBpPByxR2CK3nd3cD1ml9LO01LP6kWiPpTL38";
-    const privateKey = Deno.env.get("TRIPAY_PRIVATE_KEY") || "EpCVx-Tu8m1-tz63A-2ePs1-wsJob";
+    const apiKey = Deno.env.get("TRIPAY_API_KEY") || "DEV-FuifX106CyACBaYJ6VCgCCLEbgJ8gj24iSelutnw";
+    const privateKey = Deno.env.get("TRIPAY_PRIVATE_KEY") || "Pwmet-79VVS-T1edO-0tcdi-lBsXM";
     const merchantCode = Deno.env.get("TRIPAY_MERCHANT_CODE") || "T51310";
     
     const merchantRef = orderId.replace(/-/g, "").substring(0, 20); // Tripay limit maybe

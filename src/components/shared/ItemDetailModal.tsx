@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Plus } from "lucide-react";
 import { formatRupiah } from "@/lib/format";
+import { renderIcon } from "@/lib/icons";
 
 type ItemDetailModalProps = {
   selectedItem: any;
@@ -122,10 +123,13 @@ export function ItemDetailModal({ selectedItem, setSelectedItem, onAdd }: ItemDe
                         return (
                           <label key={j} onClick={() => handleSelect(opt.name, opt.type, choice.name)} className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-colors ${isSelected ? 'border-primary bg-primary/5' : 'border-border hover:bg-secondary/50'}`}>
                             <div className="flex items-center gap-3">
-                              <div className={`grid size-5 place-items-center border ${opt.type === "wajib" ? 'rounded-full' : 'rounded-md'} ${isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-input'}`}>
+                              <div className={`grid size-5 shrink-0 place-items-center border ${opt.type === "wajib" ? 'rounded-full' : 'rounded-md'} ${isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-input'}`}>
                                 {isSelected && (opt.type === "wajib" ? <div className="size-2 rounded-full bg-current" /> : <svg className="size-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>)}
                               </div>
-                              <span className="font-medium text-sm">{choice.name}</span>
+                              <div className="flex items-center gap-1.5">
+                                {choice.icon && renderIcon(choice.icon, "size-4 text-muted-foreground")}
+                                <span className="font-medium text-sm">{choice.name}</span>
+                              </div>
                             </div>
                             {choice.price_diff > 0 && (
                               <span className="text-xs font-bold text-accent">+{formatRupiah(choice.price_diff)}</span>

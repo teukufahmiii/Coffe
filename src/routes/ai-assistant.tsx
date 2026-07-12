@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, Send, Bot, User, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useMenuItems } from "@/hooks/useMenuItems";
 
 export const Route = createFileRoute("/ai-assistant")({
   head: () => ({
@@ -15,24 +17,10 @@ type Message = {
   content: string;
 };
 
-const SYSTEM_PROMPT = `Anda adalah "LNR Asisten AI", asisten pintar untuk aplikasi LNR Coffee.
-Tugas Anda adalah menjawab pertanyaan pelanggan seputar fitur aplikasi, menu, dan informasi kedai.
-Aplikasi ini memiliki fitur:
-- Pemesanan (Dine-in, Takeaway) menu Kopi, Non-Coffee, Snack
-- KopiPedia (artikel edukasi kopi)
-- Catering (pemesanan jumlah besar)
-- Voucher (penukaran poin)
-- LNR Referral (ajak teman dapat cuan)
-- Pencarian Outlet terdekat (Google Maps)
-
-ATURAN SANGAT PENTING (CRITICAL):
-1. Anda TIDAK memiliki akses ke database pengguna, status pesanan, saldo akun, atau keranjang belanja secara real-time.
-2. Jangan pernah mencoba menjawab informasi spesifik tentang transaksi atau data pribadi pengguna. Jika ditanya, katakan dengan jelas bahwa Anda tidak memiliki akses ke database untuk keamanan, dan sarankan mereka mengecek halaman "Pesanan" atau "Profil".
-3. Jawab dengan bahasa Indonesia yang ramah, hangat, dan sopan selayaknya barista yang melayani pelanggan.
-4. Format jawaban Anda senatural mungkin tanpa markdown rumit jika tidak diperlukan.`;
-
 function AIAssistantPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data: menuItems } = useMenuItems(undefined, false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -73,9 +61,39 @@ function AIAssistantPage() {
         throw new Error("API Key Groq tidak ditemukan.");
       }
 
+      const menuText = menuItems 
+        ? menuItems.map(m => `- ${m.name} (Kategori: ${m.category}, Harga: Rp ${m.price})`).join('\n')
+        : "Data menu tidak tersedia saat ini.";
+
+      // Dynamic System Prompt based on user status and strict rules
+      const dynamicSystemPrompt = `Anda adalah "LNR Asisten AI", asisten pintar untuk LNR Coffee.
+Tugas Anda adalah melayani pelanggan dengan ramah, hangat, dan sopan selayaknya barista profesional.
+
+INFORMASI PENGGUNA SAAT INI:
+- Nama Pengguna: ${user?.name || 'Belum Login / Tamu'}
+
+DAFTAR MENU LNR COFFEE SAAT INI:
+${menuText}
+
+ATURAN & PENGETAHUAN YANG DIIZINKAN (WAJIB TAHU):
+1. Anda TAHU persis daftar menu di atas. Jika ditanya rekomendasi atau harga, gunakan data menu di atas.
+2. Anda TAHU cara pesan menggunakan Driver/Delivery dan Pick Up (Ambil di kedai / Pesan Tanpa Antri).
+3. Anda TAHU cara Login dan Register (buat akun).
+4. Anda TAHU cara melihat riwayat pesanan (di menu Pesanan).
+5. Anda TAHU tentang fitur KopiPedia (artikel edukasi) dan Catering (pesanan jumlah besar).
+6. Anda TAHU lokasi outlet.
+7. Anda TAHU nomor kontak Customer Service LNR Coffee: 085813372092.
+
+ATURAN LARANGAN (CRITICAL - JANGAN PERNAH DILANGGAR):
+1. DILARANG KERAS memberikan informasi, mengetahui, atau membahas tentang "Admin Dashboard" / panel admin.
+2. DILARANG KERAS membocorkan "Rahasia Dapur" (resep rahasia, cara pembuatan internal, informasi supplier, dll).
+3. Akses database Anda terbatas hanya pada fitur pengguna umum di atas, jangan mengarang data transaksi spesifik.
+
+Format jawaban harus senatural mungkin tanpa markdown yang rumit. Selalu sapa pengguna dengan namanya jika sudah login.`;
+
       // Convert messages to Groq format (including system prompt)
       const apiMessages = [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: dynamicSystemPrompt },
         ...messages.map((m) => ({ role: m.role, content: m.content })),
         { role: "user", content: userMsg.content },
       ];
@@ -123,46 +141,74 @@ function AIAssistantPage() {
   };
 
   return (
-    <div className="h-[100dvh] bg-[#F9F6F0] flex flex-col font-sans overflow-hidden">
-      {/* HEADER */}
-      <header className="shrink-0 bg-white border-b-2 border-black px-4 py-3 md:py-4 flex items-center justify-between shadow-sm z-50">
+    <div className="fixed inset-0 z-[100] bg-[#F9F6F0] flex flex-col font-sans overflow-hidden">
+      {/* 3D PREMIUM HEADER */}
+      <header className="shrink-0 relative bg-gradient-to-br from-[#1C120C] to-[#3A2417] border-b-2 border-black rounded-b-[2rem] shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] pt-8 pb-4 px-4 overflow-hidden z-20">
+        {/* Animated Gradient Line */}
+        <div className="absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-r from-[#5C4033] via-[#D4AF37] to-[#5C4033] bg-[length:200%_auto] animate-[gradient-x_3s_linear_infinite]"></div>
+        
+        {/* Glowing Orbs */}
+        <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#D4AF37]/20 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-[#8B5A2B]/30 rounded-full blur-3xl"></div>
+
+        {/* Back Button */}
         <button 
           onClick={() => navigate({ to: "/" })}
-          className="p-2 -ml-2 rounded-xl border border-transparent hover:border-black/10 hover:bg-black/5 transition-all"
+          className="absolute top-4 left-4 p-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white transition-all z-30 shadow-md"
         >
-          <ChevronLeft className="size-6 text-primary" />
+          <ChevronLeft className="size-5 md:size-6" />
         </button>
-        <div className="flex items-center gap-2">
-          <Bot className="size-5 text-[#5C4033]" />
-          <h1 className="font-display font-bold text-lg text-primary">LNR Asisten AI</h1>
+
+        {/* 3D Mascot */}
+        <div className="relative z-20 flex flex-col items-center justify-center">
+          <div className="relative h-20 md:h-28 w-auto animate-[ride_2s_ease-in-out_infinite]">
+            <img 
+              src="/images/lnr-asisten-ai.png" 
+              alt="LNR AI" 
+              className="h-full w-auto object-contain drop-shadow-[0_0_20px_rgba(212,175,55,0.6)]" 
+            />
+          </div>
         </div>
-        <div className="w-10"></div> {/* Spacer for centering */}
       </header>
 
+      <style>{`
+        @keyframes ride {
+          0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+          50% { transform: translateY(-5px) rotate(4deg) scale(1.05); }
+        }
+        @keyframes gradient-x {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+      `}</style>
+
       {/* CHAT CONTAINER */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 max-w-3xl mx-auto w-full scroll-smooth">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 space-y-4 max-w-3xl mx-auto w-full scroll-smooth">
         {messages.map((msg) => (
           <div 
             key={msg.id} 
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in slide-in-from-bottom-2 fade-in duration-300`}
+            className={`flex w-full ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in slide-in-from-bottom-2 fade-in duration-300`}
           >
-            <div className={`flex gap-3 max-w-[85%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+            <div className={`flex gap-2.5 max-w-[85%] md:max-w-[75%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
               {/* Avatar */}
-              <div className={`flex-shrink-0 size-8 rounded-full grid place-items-center border-2 border-black shadow-sm
-                ${msg.role === "user" ? "bg-primary text-white" : "bg-white text-[#5C4033]"}`}
+              <div className={`flex-shrink-0 size-8 md:size-10 rounded-full grid place-items-center border-2 border-black shadow-sm mt-auto overflow-hidden
+                ${msg.role === "user" ? "bg-primary text-white" : "bg-[#1C120C]"}`}
               >
-                {msg.role === "user" ? <User className="size-4" /> : <Bot className="size-4" />}
+                {msg.role === "user" ? (
+                  <User className="size-4 md:size-5" />
+                ) : (
+                  <img src="/images/lnr-asisten-ai.png" alt="AI" className="w-full h-full object-contain object-top pt-1 scale-125" />
+                )}
               </div>
               
               {/* Bubble */}
-              <div className={`p-3 md:p-4 rounded-2xl border-2 border-black shadow-md
+              <div className={`p-3 md:p-4 rounded-[1.25rem] border-2 border-black shadow-sm
                 ${msg.role === "user" 
-                  ? "bg-primary text-white rounded-tr-sm" 
-                  : "bg-white text-black rounded-tl-sm"}`}
+                  ? "bg-primary text-white rounded-br-sm" 
+                  : "bg-white text-black rounded-bl-sm"}`}
               >
-                {/* Apply Times New Roman explicitly to AI responses */}
                 <p 
-                  className={`text-sm md:text-base leading-relaxed whitespace-pre-wrap ${msg.role === "assistant" ? "font-serif" : ""}`}
+                  className={`text-[13px] md:text-base leading-relaxed whitespace-pre-wrap ${msg.role === "assistant" ? "font-serif" : ""}`}
                   style={msg.role === "assistant" ? { fontFamily: "'Times New Roman', Times, serif" } : {}}
                 >
                   {msg.content}
@@ -173,29 +219,29 @@ function AIAssistantPage() {
         ))}
 
         {isLoading && (
-          <div className="flex justify-start animate-in fade-in">
-            <div className="flex gap-3 max-w-[80%] flex-row">
-              <div className="flex-shrink-0 size-8 rounded-full grid place-items-center border-2 border-black shadow-sm bg-white text-[#5C4033]">
-                <Bot className="size-4" />
+          <div className="flex w-full justify-start animate-in fade-in">
+            <div className="flex gap-2.5 max-w-[85%] flex-row">
+              <div className="flex-shrink-0 size-8 md:size-10 rounded-full grid place-items-center border-2 border-black shadow-sm bg-[#1C120C] mt-auto overflow-hidden">
+                <img src="/images/lnr-asisten-ai.png" alt="AI" className="w-full h-full object-contain object-top pt-1 scale-125" />
               </div>
-              <div className="p-4 rounded-2xl rounded-tl-sm border-2 border-black bg-white shadow-md flex items-center gap-2">
+              <div className="p-3 md:p-4 rounded-[1.25rem] rounded-bl-sm border-2 border-black bg-white shadow-sm flex items-center gap-2">
                 <Loader2 className="size-4 animate-spin text-[#5C4033]" />
-                <span className="text-xs text-muted-foreground font-bold" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                  AI sedang mengetik...
+                <span className="text-[13px] text-muted-foreground font-bold" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  AI mengetik...
                 </span>
               </div>
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="h-2" />
       </div>
 
       {/* INPUT AREA */}
-      <div className="shrink-0 bg-white border-t-2 border-black p-3 md:p-4 pb-[calc(env(safe-area-inset-bottom)+12px)] z-40 w-full">
-        <div className="max-w-3xl mx-auto">
+      <div className="shrink-0 bg-white border-t-2 border-black p-3 md:p-4 pb-[calc(max(env(safe-area-inset-bottom),12px))] z-20 w-full shadow-[0_-4px_15px_rgba(0,0,0,0.03)]">
+        <div className="max-w-3xl mx-auto w-full">
           <form 
             onSubmit={handleSendMessage}
-            className="flex items-end gap-2 bg-[#F9F6F0] rounded-[24px] border-2 border-black p-1 pl-4 shadow-sm focus-within:shadow-md focus-within:border-[#5C4033] transition-all"
+            className="flex items-end gap-2 bg-[#F9F6F0] rounded-3xl border-2 border-black p-1 pl-4 shadow-sm focus-within:shadow-md transition-all"
           >
             <textarea
               value={inputMessage}
@@ -206,16 +252,16 @@ function AIAssistantPage() {
                   handleSendMessage();
                 }
               }}
-              placeholder="Tanya asisten tentang LNR..."
-              className="flex-1 max-h-32 min-h-[44px] bg-transparent border-none outline-none py-3 resize-none text-base"
+              placeholder="Tanya asisten LNR..."
+              className="flex-1 max-h-28 min-h-[44px] bg-transparent border-none outline-none py-3 resize-none text-[15px]"
               rows={1}
             />
             <button
               type="submit"
               disabled={!inputMessage.trim() || isLoading}
-              className="mb-1 mr-1 p-2 md:p-3 rounded-full bg-primary text-white disabled:bg-gray-300 disabled:text-gray-500 hover:-translate-y-0.5 transition-all"
+              className="mb-1 mr-1 grid place-items-center size-10 md:size-12 rounded-full bg-primary text-white disabled:bg-[#F9F6F0] disabled:text-gray-400 disabled:border disabled:border-black/10 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all"
             >
-              <Send className="size-4 md:size-5" />
+              <Send className="size-4 md:size-5 ml-1" />
             </button>
           </form>
         </div>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, X, Upload, Save } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, X, Upload, Save, ExternalLink, RefreshCw, Package } from "lucide-react";
 import { formatRupiah } from "@/lib/format";
-import { MenuItem, CATS, PRESET_OPTIONS } from "@/types/menu";
+import { MenuItem, CATS } from "@/types/menu";
+import { MasterOptionsManager } from "@/components/admin/settings/MasterOptionsManager";
 
 function MasterMenuManager() {
   const [items, setItems] = useState<MenuItem[] | null>(null);
@@ -11,11 +12,23 @@ function MasterMenuManager() {
   const [editing, setEditing] = useState<Partial<MenuItem> | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [masterOptions, setMasterOptions] = useState<any[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+  const [showOptionsManager, setShowOptionsManager] = useState(false);
+
+  const loadOptions = async () => {
+    setLoadingOptions(true);
+    const { data: optData } = await supabase.from("customization_options").select("*").order("created_at", { ascending: true });
+    if (optData) setMasterOptions(optData);
+    setLoadingOptions(false);
+  };
 
   const load = async () => {
     setItems(null);
     const { data: bData } = await supabase.from("branches").select("*").order("name");
     if (bData) setBranches(bData);
+
+    await loadOptions();
 
     const { data, error } = await supabase
       .from("menu_items")
@@ -85,7 +98,7 @@ function MasterMenuManager() {
     if (currentOpts.find(o => o.name === presetName)) {
       setEditing({ ...editing, options: currentOpts.filter(o => o.name !== presetName) });
     } else {
-      const preset = PRESET_OPTIONS.find(p => p.name === presetName);
+      const preset = masterOptions.find(p => p.name === presetName);
       if (preset) {
         setEditing({ ...editing, options: [...currentOpts, JSON.parse(JSON.stringify(preset))] });
       }
@@ -121,11 +134,13 @@ function MasterMenuManager() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">Menu yang ditambahkan di sini akan tersedia di semua cabang secara default.</p>
-        <button onClick={() => setEditing({ available_branches: branches.map(b => b.slug), category: "coffee", price: 0, description: "", name: "", options: [], image_url: null })} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
-          <Plus className="size-4" /> Tambah Menu Global
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setEditing({ available_branches: branches.map(b => b.slug), category: "coffee", price: 0, description: "", name: "", options: [], image_url: null })} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90">
+            <Plus className="size-4" /> Tambah Menu Global
+          </button>
+        </div>
       </div>
 
       {items === null ? (
@@ -274,13 +289,29 @@ function MasterMenuManager() {
 
               {/* OPSI KUSTOMISASI SIMPLE */}
               <div>
-                <div className="mb-4">
-                  <h3 className="font-semibold">Opsi Kustomisasi</h3>
-                  <p className="text-xs text-muted-foreground">Centang fitur yang ingin ditambahkan pada menu ini. Anda bisa mengubah harga tambahannya jika perlu.</p>
+                <div className="mb-4 flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold">Opsi Kustomisasi</h3>
+                    <p className="text-xs text-muted-foreground">Centang fitur yang ingin ditambahkan pada menu ini.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={(e) => { e.preventDefault(); loadOptions(); }}
+                      className="flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                    >
+                      <RefreshCw className={`size-3 ${loadingOptions ? 'animate-spin' : ''}`} /> Refresh
+                    </button>
+                    <button 
+                      onClick={(e) => { e.preventDefault(); setShowOptionsManager(true); }}
+                      className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary hover:bg-primary/20"
+                    >
+                      <Plus className="size-3" /> Tambah Opsi Baru
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
-                  {PRESET_OPTIONS.map((preset) => {
+                  {masterOptions.map((preset) => {
                     const activeGroup = (editing.options || []).find((o: any) => o.name === preset.name);
                     const isActive = !!activeGroup;
 
@@ -301,7 +332,7 @@ function MasterMenuManager() {
                         
                         {isActive && activeGroup && (
                           <div className="border-t border-primary/20 bg-background/50 p-4 space-y-3">
-                            {preset.choices.map((choice) => {
+                            {(preset.choices || []).map((choice: any) => {
                               const activeChoiceIndex = activeGroup.choices.findIndex((c: any) => c.name === choice.name);
                               const isChoiceActive = activeChoiceIndex !== -1;
                               const activeChoice = isChoiceActive ? activeGroup.choices[activeChoiceIndex] : choice;
@@ -347,6 +378,21 @@ function MasterMenuManager() {
             </div>
           </div>
           <style>{`.input{width:100%;border:1px solid var(--border);border-radius:.75rem;padding:.65rem .9rem;font-size:.875rem;outline:none}.input:focus{border-color:var(--accent)}`}</style>
+        </div>
+      )}
+
+      {/* OPTIONS MANAGER MODAL */}
+      {showOptionsManager && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" onClick={() => { setShowOptionsManager(false); loadOptions(); }}>
+          <div className="flex max-h-[90vh] w-full max-w-4xl flex-col rounded-2xl bg-background shadow-warm overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-border p-5 bg-card z-10">
+              <h2 className="font-display text-xl font-bold flex items-center gap-2"><Package className="size-5 text-primary" /> Master Opsi Kustomisasi</h2>
+              <button onClick={() => { setShowOptionsManager(false); loadOptions(); }} className="grid size-8 place-items-center rounded-full bg-secondary hover:bg-secondary/80"><X className="size-4" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5 bg-muted/20">
+              <MasterOptionsManager />
+            </div>
+          </div>
         </div>
       )}
     </div>

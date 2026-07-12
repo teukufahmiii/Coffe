@@ -5,13 +5,14 @@ import { ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatRupiah } from "@/lib/format";
 import { Navbar } from "@/components/Navbar";
+import { useScrollSpy } from "@/hooks/useScrollSpy";
+import { MENU_CATEGORIES } from "@/components/shared/MenuList";
 
 export const Route = createFileRoute("/menu")({
   component: MenuPage,
 });
 
 function MenuPage() {
-  const [cat, setCat] = useState<"semua" | "coffee" | "non-coffee" | "snack">("semua");
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
   useEffect(() => {
@@ -26,21 +27,18 @@ function MenuPage() {
   }, [selectedItem]);
 
   const { data: menuItems, isLoading } = useQuery({
-    queryKey: ["menu-items", cat],
+    queryKey: ["menu-items"],
     queryFn: async () => {
-      let query = supabase
+      const { data, error } = await supabase
         .from("menu_items")
         .select("*");
-      
-      if (cat !== "semua") {
-        query = query.eq("category", cat);
-      }
-      
-      const { data, error } = await query;
       if (error) throw error;
       return data;
     }
   });
+
+  const categoryIds = MENU_CATEGORIES.map(c => c.id);
+  const { activeId, scrollTo } = useScrollSpy(categoryIds, 160);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -55,21 +53,12 @@ function MenuPage() {
             
             {/* Filter Tabs */}
             <div className="flex flex-wrap justify-center gap-2">
-              {[
-                { id: "semua", label: "Semua Menu" },
-                { id: "coffee", label: "Kopi Klasik" },
-                { id: "hot-coffee", label: "Hot Coffee" },
-                { id: "americano", label: "Americano" },
-                { id: "non-coffee", label: "Non-Kopi" },
-                { id: "snack", label: "Makanan" },
-                { id: "makanan", label: "Makanan Berat" },
-                { id: "tumbler", label: "Tumbler" },
-              ].map((c) => (
+              {MENU_CATEGORIES.map((c) => (
                 <button
                   key={c.id}
-                  onClick={() => setCat(c.id as any)}
+                  onClick={() => scrollTo(c.id)}
                   className={`shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition ${
-                    cat === c.id
+                    activeId === c.id
                       ? "bg-[#5C4033] text-white"
                       : "bg-[#F6F3EC] text-foreground border border-border/50 hover:bg-[#EBE5D9]"
                   }`}
@@ -79,42 +68,96 @@ function MenuPage() {
               ))}
             </div>
           </div>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {(menuItems ?? []).map((m) => (
-              <div 
-                key={m.id} 
-                onClick={() => setSelectedItem(m)}
-                className="group cursor-pointer rounded-2xl border border-border/50 bg-[#F9F6F0] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-              >
-                <div className="mb-4 size-20 md:size-24 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm">
-                  <img 
-                    src={m.image_url || `/images/${m.name.toLowerCase().replace(/\s+/g, '-')}.png`}
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = `/images/${m.category}.png`;
-                    }}
-                    alt={m.name} 
-                    className="h-full w-full object-contain" 
-                  />
-                </div>
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-display text-xl font-semibold">{m.name}</h3>
-                  <span className="text-sm font-bold text-[#5C4033]">{formatRupiah(m.price)}</span>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{m.description}</p>
-                <span className="mt-4 inline-block rounded-full bg-white px-2.5 py-1 border border-border/50 text-[10px] font-bold uppercase tracking-widest text-[#5C4033]">
-                  {m.category}
-                </span>
-              </div>
-            ))}
-            {isLoading && Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-48 animate-pulse rounded-2xl border border-border/50 bg-[#F9F6F0]" />
-            ))}
-            {!isLoading && menuItems?.length === 0 && (
-              <div className="col-span-full py-12 text-center text-muted-foreground">
-                Belum ada menu di kategori ini.
-              </div>
-            )}
+          <div className="mt-10 space-y-12">
+            {/* Best Seller Section */}
+            {(() => {
+              const bestSellerKeywords = ["gula aren", "croisant", "milo"];
+              const bestSellers = (menuItems || []).filter((m) => {
+                const nameLower = m.name.toLowerCase();
+                return bestSellerKeywords.some(kw => nameLower.includes(kw));
+              });
+              
+              if (bestSellers.length === 0) return null;
+              
+              return (
+                <section id="category-semua" className="scroll-mt-40">
+                  <h3 className="font-display text-2xl font-bold mb-6 text-primary text-left border-b border-border pb-2">Best Seller</h3>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 text-left">
+                    {bestSellers.map((m) => (
+                      <div 
+                        key={m.id} 
+                        onClick={() => setSelectedItem(m)}
+                        className="group cursor-pointer rounded-2xl border border-border/50 bg-[#F9F6F0] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                      >
+                        <div className="mb-4 size-20 md:size-24 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm">
+                          <img 
+                            src={m.image_url || `/images/${m.name.toLowerCase().replace(/\s+/g, '-')}.png`}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `/images/${m.category}.png`;
+                            }}
+                            alt={m.name} 
+                            className="h-full w-full object-contain" 
+                          />
+                        </div>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <h3 className="font-display text-xl font-semibold">{m.name}</h3>
+                          <span className="text-sm font-bold text-[#5C4033]">{formatRupiah(m.price)}</span>
+                        </div>
+                        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{m.description}</p>
+                        <span className="mt-4 inline-block rounded-full bg-white px-2.5 py-1 border border-border/50 text-[10px] font-bold uppercase tracking-widest text-[#5C4033]">
+                          {m.category}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
+
+            {/* Other Categories */}
+            {MENU_CATEGORIES.filter(c => c.id !== "semua").map((catObj) => {
+              const catItems = (menuItems || []).filter((m) => m.category === catObj.id);
+              if (catItems.length === 0 && !isLoading) return null;
+
+              return (
+                <section id={`category-${catObj.id}`} key={catObj.id} className="scroll-mt-40">
+                  <h3 className="font-display text-2xl font-bold mb-6 text-primary text-left border-b border-border pb-2">{catObj.label}</h3>
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 text-left">
+                    {catItems.map((m) => (
+                      <div 
+                        key={m.id} 
+                        onClick={() => setSelectedItem(m)}
+                        className="group cursor-pointer rounded-2xl border border-border/50 bg-[#F9F6F0] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                      >
+                        <div className="mb-4 size-20 md:size-24 shrink-0 overflow-hidden rounded-2xl bg-white shadow-sm">
+                          <img 
+                            src={m.image_url || `/images/${m.name.toLowerCase().replace(/\s+/g, '-')}.png`}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `/images/${m.category}.png`;
+                            }}
+                            alt={m.name} 
+                            className="h-full w-full object-contain" 
+                          />
+                        </div>
+                        <div className="flex items-baseline justify-between gap-3">
+                          <h3 className="font-display text-xl font-semibold">{m.name}</h3>
+                          <span className="text-sm font-bold text-[#5C4033]">{formatRupiah(m.price)}</span>
+                        </div>
+                        <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{m.description}</p>
+                        <span className="mt-4 inline-block rounded-full bg-white px-2.5 py-1 border border-border/50 text-[10px] font-bold uppercase tracking-widest text-[#5C4033]">
+                          {m.category}
+                        </span>
+                      </div>
+                    ))}
+                    {isLoading && Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-48 animate-pulse rounded-2xl border border-border/50 bg-[#F9F6F0]" />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
         </div>
       </main>

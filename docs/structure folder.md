@@ -8,6 +8,7 @@ Proyek LNR Coffee menggunakan arsitektur Modern Web dengan pemisahan yang rapi a
 - `tailwind.config.ts` & `postcss.config.js`: Konfigurasi *styling* menggunakan Tailwind CSS.
 - `tsconfig.json`: Konfigurasi TypeScript untuk memastikan *type-safety*.
 - `.env`: Menyimpan variabel lingkungan *(environment variables)* yang sensitif (seperti API Keys Supabase, Groq AI, dan Tripay).
+- `docs/`: Berisi dokumentasi sistem seperti ERD, alur pengguna (user flow), dan konfigurasi kepintaran AI (`ai_rules.md`).
 
 ---
 
@@ -31,6 +32,7 @@ Pusat dari aplikasi ini karena proyek menggunakan **TanStack Router** dengan sis
   - `admin.developer.tsx`: Rute super rahasia untuk Developer / IT (mengakses *System Logs* dan *Database Tools*).
 - `menu.tsx`: Halaman daftar menu LNR Coffee.
 - `select-location.tsx`: Halaman pemilihan outlet terdekat berdasarkan jarak (GPS).
+- `ai-assistant.tsx`: Rute antarmuka cerdas (AI) untuk percakapan bot LNR Coffee.
 
 ### 📁 `/src/hooks`
 Kumpulan *Custom React Hooks* untuk logika aplikasi.

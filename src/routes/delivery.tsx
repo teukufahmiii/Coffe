@@ -12,6 +12,8 @@ import { ItemDetailModal } from "@/components/shared/ItemDetailModal";
 import { DeliveryCheckout } from "@/components/delivery/DeliveryCheckout";
 import { LocationPicker } from "@/components/shared/LocationPicker";
 import { tripayService } from "@/services/tripayService";
+import { useScrollSpy } from "@/hooks/useScrollSpy";
+import { MENU_CATEGORIES } from "@/components/shared/MenuList";
 
 export const Route = createFileRoute("/delivery")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -22,23 +24,13 @@ export const Route = createFileRoute("/delivery")({
   component: DeliveryOrderPage,
 });
 
-const CATS = [
-  { id: "semua", label: "Semua" },
-  { id: "coffee", label: "Coffee" },
-  { id: "hot-coffee", label: "Hot Coffee" },
-  { id: "americano", label: "Americano" },
-  { id: "non-coffee", label: "Non-Coffee" },
-  { id: "snack", label: "Snack" },
-  { id: "makanan", label: "Makanan" },
-  { id: "tumbler", label: "Tumbler" },
-] as const;
+
 
 function DeliveryOrderPage() {
   const navigate = useNavigate({ from: "/delivery" });
   const { branch } = useSearch({ from: "/delivery" });
   const branchSlug = branch || "kemang";
   
-  const [cat, setCat] = useState<(typeof CATS)[number]["id"]>("semua");
   const [showCheckout, setShowCheckout] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -46,7 +38,8 @@ function DeliveryOrderPage() {
   const { cart, adjustQty, clearCart, totals } = useCart();
   const { data: items, isLoading } = useMenuItems(branchSlug);
 
-  const filtered = items?.filter((m) => cat === "semua" || m.category === cat) ?? [];
+  const categoryIds = MENU_CATEGORIES.map(c => c.id);
+  const { activeId, scrollTo } = useScrollSpy(categoryIds, 160);
 
   const handleCheckoutSubmit = async (details: any) => {
     setSubmitting(true);
@@ -57,14 +50,16 @@ function DeliveryOrderPage() {
       const orderPayload: any = {
         table_number: 99, 
         total: Math.max(0, totals.total - (details.discountAmount || 0)), 
-        note: details.globalNote, 
         status: "pending", 
         order_type: "delivery",
         branch: branchSlug,
         branch_id: branchId,
         customer_name: details.customerName,
         customer_phone: details.customerPhone,
-        customer_address: details.customerAddress,
+        customer_address: details.globalNote 
+          ? `${details.customerAddress}\n(Detail Patokan: ${details.globalNote})`
+          : details.customerAddress,
+        note: null, // Note is now merged into customer_address for delivery
         customer_lat: details.customerLat ?? null,
         customer_lng: details.customerLng ?? null,
         driver_type: details.driverType,
@@ -145,11 +140,17 @@ function DeliveryOrderPage() {
           <div className="grid size-10 place-items-center rounded-full bg-accent/10 text-accent"><ShoppingBag className="size-4" /></div>
         </div>
 
-        <LocationPicker currentBranch={branchSlug} path="/delivery" />
+        <div className="mx-auto max-w-2xl px-4">
+          <LocationPicker currentBranch={branchSlug} path="/delivery" />
+        </div>
 
-        <div className="mx-auto flex max-w-2xl gap-2 overflow-x-auto px-4 pb-3">
-          {CATS.map((c) => (
-            <button key={c.id} onClick={() => setCat(c.id)} className={`shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition ${cat === c.id ? "bg-accent text-accent-foreground" : "bg-secondary text-foreground hover:bg-accent/20"}`}>
+        <div className="mx-auto flex max-w-2xl gap-2 overflow-x-auto px-4 pb-3 hide-scrollbar">
+          {MENU_CATEGORIES.map((c) => (
+            <button 
+              key={c.id} 
+              onClick={() => scrollTo(c.id)} 
+              className={`shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition ${activeId === c.id ? "bg-accent text-accent-foreground" : "bg-secondary text-foreground hover:bg-accent/20"}`}
+            >
               {c.label}
             </button>
           ))}
@@ -159,7 +160,6 @@ function DeliveryOrderPage() {
       <main className="mx-auto max-w-2xl px-4 py-5">
         <MenuList 
           items={items ?? []}
-          category={cat}
           cart={cart}
           adjustQty={adjustQty}
           setSelectedItem={setSelectedItem}

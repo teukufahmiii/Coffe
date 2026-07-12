@@ -99,6 +99,28 @@ function Landing() {
             )}
           </div>
           
+          {/* LNR VOUCHER DENGAN ANIMASI BORDER */}
+          <Link to="/vouchers" className="block w-full max-w-[280px] md:max-w-sm mx-auto mb-6 hover:-translate-y-1 transition-all duration-300">
+            <div className="relative rounded-2xl overflow-hidden p-[2.5px] shadow-sm">
+              {/* Efek animasi gradient berjalan di pinggiran */}
+              <div 
+                className="absolute inset-[-100%] animate-[spin_4s_linear_infinite]" 
+                style={{
+                  background: 'conic-gradient(from 90deg at 50% 50%, transparent 0%, #5C4033 25%, transparent 50%, transparent 50%, #5C4033 75%, transparent 100%)'
+                }}
+              />
+              
+              {/* Konten Dalam (Kotak Putih yang menutupi bagian tengah) */}
+              <div className="relative bg-white rounded-xl p-1.5 w-full h-full z-10 border border-black/5">
+                <img 
+                  src="/images/vocher-terbaru.png" 
+                  alt="Voucher LNR" 
+                  className="w-full h-[70px] md:h-[90px] object-cover object-center rounded-lg"
+                />
+              </div>
+            </div>
+          </Link>
+
           {/* MINI FEATURE BAR */}
           <div className="flex justify-center">
             <div className="flex items-center justify-between w-full gap-2 md:gap-8 bg-[#F9F6F0] px-3 md:px-8 py-2 md:py-2.5 rounded-full border border-black/10 shadow-inner">
@@ -133,16 +155,6 @@ function Landing() {
 
       {/* ORDER ACTIONS */}
       <section className="relative z-20 px-4 md:px-6 pb-2 md:pb-3 pt-0">
-        <Link to="/vouchers" className="block mx-auto w-full max-w-[280px] md:max-w-lg mb-6 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
-          <div className="bg-white rounded-2xl border-2 border-black p-1.5 shadow-md">
-            <img 
-              src="/images/vocher-terbaru.png" 
-              alt="Voucher LNR" 
-              className="w-full h-[60px] md:h-[80px] object-cover object-center rounded-xl"
-            />
-          </div>
-        </Link>
-
         <div className="mx-auto w-full max-w-3xl bg-white rounded-3xl md:rounded-[2rem] shadow-xl border-2 border-black p-6 md:p-8 text-center">
           <h2 className="font-display text-xl md:text-3xl font-bold text-primary mb-4 md:mb-6">
             Pesan LNR Coffee Sekarang?
@@ -152,24 +164,28 @@ function Landing() {
             <Link
               to="/select-location"
               search={{ type: "pickup" }}
-              className="flex flex-col items-center justify-center gap-1.5 md:gap-4 rounded-2xl md:rounded-3xl bg-white p-3 md:p-6 border-2 border-black hover:-translate-y-1 hover:shadow-xl group"
+              className="flex flex-col items-center justify-center gap-1.5 md:gap-4 aspect-square rounded-full bg-white p-3 md:p-6 border-2 border-black hover:-translate-y-1 hover:shadow-xl group"
             >
               <div className="grid size-10 md:size-16 place-items-center rounded-full bg-[#5C4033]/5 text-[#5C4033] group-hover:bg-[#5C4033] group-hover:text-white transition-colors duration-300">
                 <ShoppingBag className="size-5 md:size-8" />
               </div>
               <div className="text-center">
                 <div className="font-display text-base md:text-xl font-bold text-primary">Pick Up</div>
-                <div className="mt-1 text-[10px] md:text-sm text-muted-foreground hidden sm:block">Ambil pesanan di kedai</div>
+                <div className="mt-1 text-[10px] md:text-sm text-muted-foreground hidden sm:block">Pesan Tanpa Antri</div>
               </div>
             </Link>
 
             <Link
               to="/select-location"
               search={{ type: "delivery" }}
-              className="flex flex-col items-center justify-center gap-1.5 md:gap-4 rounded-2xl md:rounded-3xl bg-white p-3 md:p-6 border-2 border-black hover:-translate-y-1 hover:shadow-xl group"
+              className="flex flex-col items-center justify-center gap-1.5 md:gap-4 aspect-square rounded-full bg-white p-3 md:p-6 border-2 border-black hover:-translate-y-1 hover:shadow-xl group"
             >
-              <div className="grid size-10 md:size-16 place-items-center rounded-full bg-[#5C4033]/5 text-[#5C4033] group-hover:bg-[#5C4033] group-hover:text-white transition-colors duration-300">
-                <MapPin className="size-5 md:size-8" />
+              <div className="flex items-center justify-center w-16 h-16 md:w-24 md:h-24 transition-transform duration-300 relative">
+                <img 
+                  src="/images/driver-lnr-coffe.png" 
+                  alt="Driver LNR" 
+                  className="w-full h-full object-contain animate-ride drop-shadow-md"
+                />
               </div>
               <div className="text-center">
                 <div className="font-display text-base md:text-xl font-bold text-primary">Delivery</div>
@@ -178,10 +194,41 @@ function Landing() {
             </Link>
           </div>
 
-          <p key={headerTextIndex} className="text-xs md:text-base text-muted-foreground font-medium mt-4 md:mt-8 animate-in fade-in zoom-in duration-500">
+          <p key={headerTextIndex} className="text-xs md:text-base text-muted-foreground font-medium mt-4 md:mt-8 mb-4 md:mb-6 animate-in fade-in zoom-in duration-500">
             {headerTexts[headerTextIndex]}
           </p>
+
+          {/* CARI OUTLET MAPS (DI DALAM KOTAK PESANAN) */}
+          <a 
+            href="https://www.google.com/maps/search/LNR+Coffee" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between w-full max-w-xl mx-auto bg-[#F9F6F0] rounded-2xl border-2 border-black p-3 md:p-4 hover:-translate-y-1 hover:shadow-lg transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="grid size-10 md:size-12 place-items-center rounded-full bg-[#5C4033] text-white">
+                <MapPin className="size-5 md:size-6" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-display text-sm md:text-lg font-bold text-[#5C4033] leading-none">Cari Lokasi Outlet</h3>
+                <p className="text-[10px] md:text-xs text-[#5C4033]/70 font-medium mt-1">Terdekat di Google Maps</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-[#5C4033] font-bold text-xs md:text-sm group-hover:pr-1 transition-all">
+              Cari <ChevronRight className="size-4 md:size-5" />
+            </div>
+          </a>
         </div>
+        
+        <style>{`
+          @keyframes ride {
+            0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+            50% { transform: translateY(-5px) rotate(4deg) scale(1.05); }
+          }
+          .animate-ride {
+            animation: ride 1.2s ease-in-out infinite;
+          }
+        `}</style>
       </section>
 
       <BerandaLayanan />

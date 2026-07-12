@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, Store, Plus, Minus, Loader2, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Store, Plus, Minus, Loader2, MapPin } from "lucide-react";
 import { formatRupiah } from "@/lib/format";
 import { DriverSelector } from "./DriverSelector";
 import { PaymentMethodModal } from "./PaymentMethodModal";
@@ -115,58 +115,61 @@ export function DeliveryCheckout({ branchSlug, cart, totals, adjustCartQty, onCl
       </div>
 
       <div className="flex-1 overflow-y-auto pb-40 space-y-2">
+        {/* Combined Location Card */}
         <div className="bg-white p-4">
-          <h3 className="font-bold mb-3">Kirim pesanan dari</h3>
-          <div className="flex items-center gap-3">
-            <div className="grid size-12 place-items-center rounded-full bg-[#5C4033]/10">
-              <Store className="size-6 text-[#5C4033]" />
+          <div className="rounded-[24px] border border-gray-200 bg-white p-2 shadow-sm relative">
+            
+            {/* Dotted Line */}
+            <div className="absolute left-[43px] top-[60px] bottom-[60px] w-0 border-l-[2px] border-dotted border-gray-400"></div>
+
+            {/* Top: Store */}
+            <div className="flex items-center gap-4 p-3 relative bg-white rounded-t-2xl">
+              <div className="grid size-12 shrink-0 place-items-center rounded-full bg-[#EEF5F0] text-[#115E41]">
+                <Store className="size-6" fill="currentColor" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-[16px] truncate text-black">LNR Coffee {branchSlug}</div>
+                <div className="text-[14px] font-medium text-gray-500 mt-0.5">Cabang Resto</div>
+              </div>
+              <ChevronRight className="size-5 text-black shrink-0" strokeWidth={2.5} />
             </div>
-            <div>
-              <div className="font-bold text-sm">LNR Coffee ({branchSlug})</div>
-              <div className="text-xs text-muted-foreground mt-1">Cabang Resto</div>
+
+            {/* Horizontal Divider starting from text alignment */}
+            <div className="ml-[76px] mr-3 border-t border-gray-200"></div>
+
+            {/* Bottom: Customer Location */}
+            <div 
+              className="flex items-center gap-4 p-3 relative bg-white rounded-b-2xl cursor-pointer hover:bg-gray-50 transition-colors group"
+              onClick={handleDetectLocation}
+            >
+              <div className="grid size-12 shrink-0 place-items-center rounded-full bg-[#FFF5F2] text-[#994025]">
+                {detectingLocation ? <Loader2 className="size-6 animate-spin" /> : <MapPin className="size-6" fill="currentColor" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-bold text-[16px] truncate text-black">Lokasimu Saat Ini</div>
+                <div className="text-[14px] font-medium text-gray-500 mt-0.5 line-clamp-2 leading-snug">
+                  {customerAddress || "Ketuk untuk mendeteksi lokasi..."}
+                </div>
+              </div>
+              <ChevronRight className="size-5 text-black shrink-0" strokeWidth={2.5} />
             </div>
+          </div>
+
+          <div className="mt-4">
+            <textarea 
+              value={globalNote} 
+              onChange={(e) => setGlobalNote(e.target.value)} 
+              placeholder="Detail alamat & patokan (Cth: Blok, RT/RW, Warna Pagar)..." 
+              className="w-full resize-none rounded-xl border border-gray-200 bg-gray-50/50 p-3 text-[14px] outline-none focus:border-[#5C4033] focus:bg-white transition-colors" 
+              rows={2} 
+            />
           </div>
         </div>
 
         <div className="bg-white p-4 space-y-4">
-          <h3 className="font-bold">Data Penerima & Lokasi</h3>
+          <h3 className="font-bold">Data Penerima</h3>
           <input type="text" placeholder="Nama Penerima" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#5C4033]" required />
           <input type="tel" placeholder="Nomor HP / WhatsApp" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} className="w-full rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#5C4033]" required />
-          <div className="space-y-2">
-            <label htmlFor="customer-address" className="text-sm font-semibold">
-              Alamat Lengkap Pengirim
-            </label>
-            <textarea
-              id="customer-address"
-              value={customerAddress}
-              onChange={(e) => {
-                setCustomerAddress(e.target.value);
-                setCustomerLat(undefined);
-                setCustomerLng(undefined);
-              }}
-              placeholder="Contoh: Jl. Kemang Raya No. 12, RT 03/RW 05..."
-              className="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#5C4033]"
-              rows={3}
-              required
-            />
-            <button
-              type="button"
-              onClick={handleDetectLocation}
-              disabled={detectingLocation}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#5C4033] text-[#5C4033] py-2.5 text-sm font-semibold hover:bg-[#5C4033]/5 transition disabled:opacity-50"
-            >
-              {detectingLocation ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <MapPin className="size-4" />
-              )}
-              {detectingLocation ? "Mendeteksi lokasi mu..." : "Deteksi Lokasi Mu Sekarang"}
-            </button>
-            <p className="text-xs text-muted-foreground">
-              Izinkan akses lokasi di browser untuk mengisi alamat otomatis.
-            </p>
-          </div>
-          <textarea value={globalNote} onChange={(e) => setGlobalNote(e.target.value)} placeholder="Catatan tambahan (opsional)" className="w-full resize-none rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-[#5C4033]" rows={2} />
         </div>
 
         {/* Voucher Diskon */}

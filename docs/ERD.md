@@ -141,3 +141,6 @@ erDiagram
 5. **LOGIN_SESSIONS**
    - Tabel independen untuk melacak siapa saja yang sedang mengakses dashboard (Outlet, Master, atau Dev).
    - Kolom `is_active` digunakan untuk melakukan fitur **Force Logout** dari jarak jauh (ditangani oleh realtime listener).
+
+6. **CATATAN SISTEM AI ASISTEN**
+   - **LNR Asisten AI** tidak memiliki tabel khusus di Supabase. Sistem AI bersifat *stateless* (tidak menyimpan data percakapan di database). Percakapan berjalan murni di sisi memori lokal pengguna (browser RAM) untuk menjaga privasi pengguna serta menghemat beban pembacaan/penulisan *(read/write)* server secara drastis. State nama pengguna yang digunakan oleh AI diambil secara langsung melalui sesi *Login* yang aktif pada browser.
